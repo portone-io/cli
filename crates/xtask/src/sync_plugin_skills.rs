@@ -4,10 +4,42 @@ use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
-const SOURCE: &str = "skills/portone-cli";
+struct SkillSync {
+    source: &'static str,
+    destinations: &'static [&'static str],
+}
+
+const SKILL_SYNCS: &[SkillSync] = &[
+    SkillSync {
+        source: "skills/portone-cli",
+        destinations: &[
+            "plugins/portone-codex/skills/portone-cli",
+            "plugins/portone-integration/skills/portone-cli",
+        ],
+    },
+    SkillSync {
+        source: "skills/portone-guide",
+        destinations: &[
+            "plugins/portone-codex/skills/portone-guide",
+            "plugins/portone-integration/skills/portone-guide",
+        ],
+    },
+    SkillSync {
+        source: "skills/payment-code-generator",
+        destinations: &["plugins/portone-codex/skills/payment-code-generator"],
+    },
+    SkillSync {
+        source: "skills/integration-validator",
+        destinations: &["plugins/portone-codex/skills/integration-validator"],
+    },
+];
+
+#[cfg(test)]
+const SOURCE: &str = SKILL_SYNCS[0].source;
+#[cfg(test)]
 const DESTINATIONS: [&str; 2] = [
-    "plugins/portone-codex/skills/portone-cli",
-    "plugins/portone-integration/skills/portone-cli",
+    SKILL_SYNCS[0].destinations[0],
+    SKILL_SYNCS[0].destinations[1],
 ];
 
 #[derive(Debug, Eq, PartialEq)]
@@ -42,48 +74,59 @@ impl fmt::Display for Difference {
 /// Check every tree before writing, so unsupported entries cannot produce a
 /// partially synchronized bundle. Only the generated skill roots are managed.
 pub fn run(workspace: &Path, check: bool) -> io::Result<Vec<Difference>> {
-    let source = workspace.join(SOURCE);
-    let expected = read_tree(&source)?;
-    if expected.get(Path::new("")) != Some(&Entry::Directory) {
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("canonical skill directory not found: {}", source.display()),
-        ));
-    }
-    let destinations = DESTINATIONS
+    let syncs = SKILL_SYNCS
         .iter()
-        .map(|destination| {
-            let path = workspace.join(destination);
-            let actual = read_tree(&path)?;
-            Ok((path, actual))
+        .map(|sync| {
+            let source = workspace.join(sync.source);
+            let expected = read_tree(&source)?;
+            if expected.get(Path::new("")) != Some(&Entry::Directory) {
+                return Err(io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!("canonical skill directory not found: {}", source.display()),
+                ));
+            }
+            let destinations = sync
+                .destinations
+                .iter()
+                .map(|destination| {
+                    let path = workspace.join(destination);
+                    let actual = read_tree(&path)?;
+                    Ok((path, actual))
+                })
+                .collect::<io::Result<Vec<_>>>()?;
+            Ok((expected, destinations))
         })
         .collect::<io::Result<Vec<_>>>()?;
 
     let mut differences = Vec::new();
-    for (path, actual) in &destinations {
-        for (relative, entry) in &expected {
-            let kind = match actual.get(relative) {
-                None => "missing",
-                Some(existing) if existing != entry => "different",
-                Some(_) => continue,
-            };
-            differences.push(Difference {
-                kind,
-                path: entry_path(path, relative),
-            });
-        }
-        for relative in actual.keys().filter(|key| !expected.contains_key(*key)) {
-            differences.push(Difference {
-                kind: "stale",
-                path: entry_path(path, relative),
-            });
+    for (expected, destinations) in &syncs {
+        for (path, actual) in destinations {
+            for (relative, entry) in expected {
+                let kind = match actual.get(relative) {
+                    None => "missing",
+                    Some(existing) if existing != entry => "different",
+                    Some(_) => continue,
+                };
+                differences.push(Difference {
+                    kind,
+                    path: entry_path(path, relative),
+                });
+            }
+            for relative in actual.keys().filter(|key| !expected.contains_key(*key)) {
+                differences.push(Difference {
+                    kind: "stale",
+                    path: entry_path(path, relative),
+                });
+            }
         }
     }
     differences.sort_by(|left, right| left.path.cmp(&right.path));
 
     if !check {
-        for (path, actual) in &destinations {
-            write_tree(path, &expected, actual)?;
+        for (expected, destinations) in &syncs {
+            for (path, actual) in destinations {
+                write_tree(path, expected, actual)?;
+            }
         }
     }
     Ok(differences)
@@ -175,7 +218,9 @@ mod tests {
                 NEXT_ID.fetch_add(1, Ordering::Relaxed)
             ));
             fs::create_dir(&path).unwrap();
-            fs::create_dir_all(path.join(SOURCE)).unwrap();
+            for sync in SKILL_SYNCS {
+                fs::create_dir_all(path.join(sync.source)).unwrap();
+            }
             Self(path)
         }
 
@@ -276,6 +321,64 @@ mod tests {
         let workspace = Workspace::new();
         workspace.write(format!("{}/SKILL.md", DESTINATIONS[0]), "keep");
         fs::remove_dir(workspace.0.join(SOURCE)).unwrap();
+        let before = read_tree(&workspace.0).unwrap();
+
+        assert!(run(&workspace.0, false).is_err());
+
+        assert_eq!(before, read_tree(&workspace.0).unwrap());
+    }
+
+    #[test]
+    fn syncs_each_canonical_skill_to_its_plugin_bundles() {
+        let workspace = Workspace::new();
+        let expected = [
+            (
+                "portone-cli",
+                &[
+                    "plugins/portone-codex/skills/portone-cli",
+                    "plugins/portone-integration/skills/portone-cli",
+                ][..],
+            ),
+            (
+                "portone-guide",
+                &[
+                    "plugins/portone-codex/skills/portone-guide",
+                    "plugins/portone-integration/skills/portone-guide",
+                ][..],
+            ),
+            (
+                "payment-code-generator",
+                &["plugins/portone-codex/skills/payment-code-generator"][..],
+            ),
+            (
+                "integration-validator",
+                &["plugins/portone-codex/skills/integration-validator"][..],
+            ),
+        ];
+        for (skill, _) in expected {
+            workspace.write(format!("skills/{skill}/SKILL.md"), format!("{skill}\n"));
+        }
+
+        run(&workspace.0, false).unwrap();
+
+        for (skill, destinations) in expected {
+            for destination in destinations {
+                assert_eq!(
+                    fs::read(workspace.0.join(destination).join("SKILL.md")).unwrap(),
+                    format!("{skill}\n").as_bytes()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn missing_late_source_causes_no_partial_writes() {
+        let workspace = Workspace::new();
+        workspace.write(format!("{SOURCE}/SKILL.md"), "new CLI");
+        workspace.write("skills/portone-guide/SKILL.md", "guide");
+        workspace.write("skills/payment-code-generator/SKILL.md", "generator");
+        fs::remove_dir(workspace.0.join("skills/integration-validator")).unwrap();
+        workspace.write(format!("{}/SKILL.md", DESTINATIONS[0]), "old CLI");
         let before = read_tree(&workspace.0).unwrap();
 
         assert!(run(&workspace.0, false).is_err());

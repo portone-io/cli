@@ -17,7 +17,7 @@ struct Xtask {
 enum Command {
     #[command(about = "Generate the command reference in docs/reference")]
     GenDocs(GenDocsArgs),
-    #[command(about = "Copy the canonical CLI skill into both plugin bundles")]
+    #[command(about = "Synchronize canonical skills into plugin bundles")]
     SyncPluginSkills(SyncPluginSkillsArgs),
 }
 
