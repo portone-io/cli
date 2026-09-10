@@ -14,5 +14,5 @@ portone <COMMAND>
 | [portone auth](portone_auth.md) | Authenticate with PortOne |
 | [portone payment](portone_payment.md) | Inspect and manage payments |
 | [portone store](portone_store.md) | Configure the default store |
-| [portone setup](portone_setup.md) | Install PortOne plugins for AI coding assistants |
+| [portone setup](portone_setup.md) | Install PortOne skills and MCP settings for AI coding agents |
 | [portone completion](portone_completion.md) | Generate shell completion scripts |

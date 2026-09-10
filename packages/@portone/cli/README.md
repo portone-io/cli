@@ -6,8 +6,8 @@
 PortOne CLI helps you integrate PortOne payments and identity verification. It
 provides payment search, inspection, cancellation, and webhook management
 (`portone payment`), authenticated PortOne V2 API requests (`portone api`),
-authentication management (`portone auth`), and PortOne plugin setup for Claude
-Code and Codex (`portone setup`).
+authentication management (`portone auth`), and PortOne skill and MCP setup for
+supported coding agents (`portone setup`).
 
 - Repository: <https://github.com/portone-io/portone-cli>
 - Issues: <https://github.com/portone-io/portone-cli/issues>
@@ -61,58 +61,105 @@ environment with `$env:PORTONE_LANG = 'en'` before invoking the CLI.
 
 ## `portone setup`
 
-Install the PortOne plugins for Claude Code, Codex, or both:
+Copy the four official PortOne skills and configure the PortOne MCP server for
+one or more coding agents:
 
 ```bash
-portone setup
+portone setup --agent codex --scope project
+portone setup --agent claude-code,cursor --scope user
+portone setup --agent gemini-cli --agent opencode --scope project
+```
+
+`--agent` accepts comma-separated or repeated values. The supported IDs are
+`claude-code`, `codex`, `cursor`, `gemini-cli`, `github-copilot`,
+`vscode-copilot`, and `opencode`. `--scope` accepts `project` or `user`.
+Noninteractive setup requires both options. Interactive setup opens a
+multi-select with no agents initially selected, then offers project scope as the
+default.
+
+The legacy option remains available for scripts that used the earlier setup
+command. It selects user scope and may be comma-separated or repeated:
+
+```bash
 portone setup --assistant claude
 portone setup --assistant codex
 portone setup --assistant both
 ```
 
-Setup uses each assistant's plugin manager to install from the `portone`
-marketplace at `portone-io/portone-cli`. Claude Code receives
-`portone-integration@portone`; Codex receives `portone-codex@portone`. Both are
-installed for your user account and available across projects. Running setup
-again refreshes the marketplace and updates the plugin.
+Setup copies `portone-cli`, `portone-guide`, `payment-code-generator`, and
+`integration-validator`. It also adds a `portone` MCP server that runs
+`npx -y @portone/mcp-server@latest`. Install Node.js and `npx` before applying
+changes. Git and the selected agent CLIs are not required. A dry run does not
+require Node.js or `npx`.
 
-Install your selected assistants, Git, Node.js, and `npx` first. The assistant
-versions must support the plugin commands used by setup; setup checks all
-selected assistants and prerequisites before making changes. It does not
-install or update Claude Code or Codex itself. Noninteractive invocations
-must specify `--assistant`.
+The command resolves the official latest GitHub release to one commit and gets
+all skill and MCP files from that commit. It falls back to the repository's
+default branch only when no latest release exists. If the latest release exists
+but predates the four canonical skill directories, setup fails; it does not mix
+that release with files from the default branch.
 
-Each plugin includes the `portone-cli` skill for CLI authentication, payment
-inspection, and API requests, along with the existing payment integration
-skills or agents. The bundled MCP configuration starts
-`npx -y @portone/mcp-server@latest` when the assistant loads the plugin. Start a
-new assistant session after setup, check the PortOne server with `/mcp`, and
-ask it to retrieve a PortOne document. Console features may request login when
-used; setup itself does not log in or save tokens.
+GitHub requests optionally use `GH_TOKEN`, then `GITHUB_TOKEN`. PortOne API
+credentials are not used to download setup files.
 
-Setup verifies installation and activation before reporting success. If Codex
-reports an inactive plugin, enable it in `/plugins` and rerun setup. If one
-assistant fails, setup exits with code 1 and identifies completed and failed
-targets so you can retry the failed target.
+### Destinations
 
-Setup works outside Git repositories and leaves project files unchanged. The
-deprecated `--allow-dirty` flag is accepted as a hidden no-op for compatibility
-with existing scripts.
+Project setup writes skills and MCP configuration to these locations:
 
-### Existing marketplace conflicts
+| Agent | Skills | MCP configuration |
+| --- | --- | --- |
+| Claude Code | `.claude/skills` | `.mcp.json` |
+| Codex | `.agents/skills` | `.codex/config.toml` |
+| Cursor | `.agents/skills` | `.cursor/mcp.json` |
+| Gemini CLI | `.agents/skills` | `.gemini/settings.json` |
+| GitHub Copilot CLI | `.agents/skills` | `.mcp.json` |
+| VS Code Copilot | `.agents/skills` | `.vscode/mcp.json` |
+| OpenCode | `.agents/skills` | `opencode.jsonc` when it exists, otherwise `opencode.json` |
 
-If the name `portone` is already registered to another source, setup stops
-without replacing it. Inspect the source with `claude plugin marketplace list
---json` or `codex plugin marketplace list --json`. Keep the existing registration
-if you need it, or remove that registration through the assistant's plugin
-manager after checking which installed plugins depend on it. Then rerun
-`portone setup --assistant claude` or `portone setup --assistant codex` to register
-`portone-io/portone-cli`.
+User setup uses each agent's standard configuration directory. In particular,
+Codex shares `~/.agents/skills`, Claude Code defaults to `~/.claude/skills`,
+Cursor to `~/.cursor/skills`, Gemini CLI to `~/.gemini/skills`, and Copilot tools
+to `~/.copilot/skills`. OpenCode always installs under
+`${XDG_CONFIG_HOME:-~/.config}/opencode`; its `OPENCODE_CONFIG` and
+`OPENCODE_CONFIG_DIR` layers do not move that installation root. Environment
+overrides such as `CODEX_HOME`, `CLAUDE_CONFIG_DIR`, `GEMINI_CLI_HOME`,
+`COPILOT_HOME`, and `XDG_CONFIG_HOME` are honored where applicable. VS Code
+setup targets only the stable/default profile.
 
-### Maintaining the bundled CLI skill
+Agents that share a destination write one copy. Setup preserves unrelated MCP
+servers, settings, and supported JSONC/TOML comments. An explicit setup or
+update replaces the four managed skill directories and the managed `portone`
+MCP entry with the selected official revision.
 
-In the source repository, edit `skills/portone-cli/` and synchronize its copies
-into both plugin bundles:
+### Updates and receipts
+
+Setup records project installations in `.portone/setup.json`. User installations
+are recorded in `setup.json` under the PortOne platform configuration directory;
+`PORTONE_CONFIG_DIR` changes that directory. Receipts let updates target the
+same paths later without guessing from files on disk.
+
+```bash
+portone setup update
+portone setup update --agent codex,cursor
+portone setup update --scope project
+portone setup update --dry-run
+```
+
+Without filters, `portone setup update` checks receipts for both the current
+project and the user scope. `--agent` and `--scope` narrow the recorded targets.
+Updates are explicit, independent of the installed CLI version, and never run
+in the background.
+
+Setup completion confirms that the files were configured. Restart the selected
+agent, inspect its MCP servers, and ask it to retrieve a PortOne document to
+confirm that the MCP process can actually start. Follow the host's workspace
+trust or MCP approval prompt when required. Setup does not grant those approvals.
+Existing PortOne plugins are not removed automatically; disable them through the host if they duplicate the
+installed skills or server.
+
+### Maintaining the bundled skills
+
+In the source repository, edit the canonical directories under `skills/` and
+synchronize their generated plugin copies:
 
 ```bash
 cargo xtask sync-plugin-skills
@@ -120,8 +167,8 @@ cargo xtask sync-plugin-skills --check
 ```
 
 Commit the generated copies with the source changes. CI checks for missing,
-changed, or stale generated files. Publish the plugin and marketplace changes
-to the GitHub default branch before releasing a CLI version that requires them.
+changed, or stale generated files. A release used by setup must contain all four
+canonical skill directories.
 
 ## `portone auth`
 

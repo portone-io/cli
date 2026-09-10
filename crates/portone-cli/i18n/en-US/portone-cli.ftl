@@ -91,7 +91,7 @@ help-about-status = View authentication status
 
 help-about-token = Print the current console access token
 
-help-about-setup = Install PortOne plugins for AI coding assistants
+help-about-setup = Install PortOne skills and MCP settings for AI coding agents
 
 help-about-completion = Generate shell completion scripts
 
@@ -201,7 +201,7 @@ help-show-secret = Display the access token without masking it
 
 help-allow-dirty = Deprecated compatibility flag; has no effect
 
-help-assistant = Assistant to configure (claude | codex | both)
+help-assistant = Legacy selection (claude | codex | both); defaults to user scope
 
 help-shell = Shell for which to generate a completion script
 
@@ -405,26 +405,11 @@ auth-remaining-hours = { $hours }h { $minutes }m remaining
 auth-remaining-minutes = { $minutes }m remaining
 auth-remaining-seconds = { $seconds }s remaining
 
-setup-starting = 🚀 Starting PortOne integration setup
-setup-preflight = Checking plugin commands, marketplaces, and MCP runtime prerequisites...
-setup-preflight-complete = Prerequisites checked (user scope)
-setup-preflight-failed = Setup prerequisites failed; no plugins were changed
 setup-runtime-required = Install { $requirement } and make it available on PATH before running setup. Node.js and npx are required to run the bundled MCP server.
-setup-assistant-required-capabilities = Install or update { $assistant } with native plugin management before running setup: { $url }
-setup-invalid-command-json = Invalid JSON response from { $command }; update the assistant and retry
-setup-marketplace-conflict = { $assistant } already has a different or unrecognized source named portone. Inspect it with `{ $command }` and resolve the conflicting source before retrying. Expected: portone-io/portone-cli. Existing settings were preserved.
-setup-plugin-not-ready = The PortOne plugin is not installed and enabled in { $assistant }. Open `{ $command }`, enable the PortOne plugin, and retry setup.
-setup-invalid-bundle = The installed { $assistant } plugin at { $path } is missing the expected CLI skill or MCP configuration. Retry after the updated PortOne plugin is published.
-setup-incomplete = Setup was not completed for every selected assistant. Successful installations were kept; fix the reported errors and rerun setup.
-setup-mcp-next-steps = Start a new assistant session and use /mcp to check the bundled PortOne server. MCP connection has not been tested by setup. Console features request login when used.
-setup-configuring-plugin = Configuring the PortOne plugin for { $assistant }...
-setup-plugin-configured = Installed and enabled the user plugin for { $assistant }; CLI skill and MCP configuration verified
-setup-plugin-failed = Failed to configure plugin for { $assistant }
-setup-complete = ✅ Plugin setup complete. Start a new session to use the skills and MCP tools.
+setup-incomplete = Some setup files could not be updated. Successful updates were kept; fix the reported errors and rerun the command.
+setup-mcp-next-steps = Restart your agent and check PortOne in its MCP server list. Setup has not tested the MCP connection. Console features request login when used.
+setup-complete = Skills and MCP configuration installed.
 setup-unsupported-assistant = Unsupported assistant: { $assistant }
-setup-assistant-required = --assistant is required in non-interactive environments (claude | codex | both)
-setup-assistant-question = Which assistant would you like to configure?
-setup-selection-hint = ↑↓ to move, enter to select, type to filter
 setup-prompt-canceled-indicator = <canceled>
 setup-prompt-not-tty = The input device is not a TTY
 setup-prompt-canceled = Operation was canceled by the user
@@ -432,12 +417,6 @@ setup-prompt-interrupted = Operation was interrupted by the user
 setup-prompt-invalid-config = The prompt configuration is invalid: { $detail }
 setup-prompt-io-error = IO error
 setup-prompt-custom-error = User-provided error
-setup-next-steps = 📋 Next steps
-setup-start-assistant = 1. Start a new { $assistant } session:
-setup-run-slash-command = 2. Run this slash command:
-setup-codex-prompts = 2. With the `portone-codex` plugin installed, try one of these prompts:
-setup-example-implement = Implement a PortOne V2 one-time payment integration
-setup-example-review = Review the PortOne integration in this project
 setup-command-run-failed = failed to run command: { $command }
 setup-command-output-failed = command failed: { $command }
     { $output }
@@ -534,3 +513,27 @@ store-invalid-id = store ID must not be empty or contain control characters
 auth-login-store-unavailable = portone: login succeeded, but the default store could not be determined: { $error }
 auth-login-store-selected = Default store: { $store }
 auth-login-store-unset = No default store selected. Run `portone store set-default` to set one later.
+help-about-setup-update = Update recorded PortOne skills and MCP settings
+help-setup-agent = Agents to configure (comma-separated or repeated)
+help-setup-scope = Installation scope (project | user)
+help-setup-dry-run = Preview updates without writing files
+setup-options-required = --agent and --scope are required in non-interactive environments (or use legacy --assistant)
+setup-update-legacy = Use --agent to filter setup update; --assistant is only supported by setup
+setup-agent-question = Which agents would you like to configure?
+setup-multiselect-hint = ↑↓ to move, space to toggle, enter to confirm
+setup-agent-required = Select at least one agent
+setup-scope-question = Where should the skills and MCP settings be installed?
+setup-scope-project = Current project
+setup-scope-user = Current user
+setup-runtime-ready = Node.js and npx are available
+setup-downloading = Downloading the latest official PortOne skills and MCP configuration...
+setup-download-failed = Unable to download PortOne setup files; existing installations were preserved
+setup-source = Source: { $reference } ({ $commit })
+setup-state-unchanged = Up to date
+setup-state-would-update = Would update
+setup-state-updated = Updated
+setup-state-failed = Failed
+setup-write-failed = Unable to update setup files: { $detail }
+setup-not-configured = No recorded installations match. Run portone setup first.
+setup-dry-run-complete = Preview complete. No files or installation records were changed.
+setup-update-hint = Run portone setup update to update installed skills and MCP settings. Updates do not run automatically.

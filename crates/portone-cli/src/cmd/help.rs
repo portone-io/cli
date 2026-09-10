@@ -73,6 +73,7 @@ fn about(path: &str, localizer: &Localizer) -> Option<String> {
         }
         "portone store" => crate::tr!(localizer, "help-about-store"),
         "portone store set-default" => crate::tr!(localizer, "help-about-store-set-default"),
+        "portone setup update" => crate::tr!(localizer, "help-about-setup-update"),
         "portone setup" => crate::tr!(localizer, "help-about-setup"),
         "portone completion" => crate::tr!(localizer, "help-about-completion"),
         path if path.ends_with(" help") => crate::tr!(localizer, "help-about-help"),
@@ -119,6 +120,9 @@ fn arg_help(arg: &Arg, owner: &str, localizer: &Localizer) -> Option<String> {
         "no_browser" => crate::tr!(localizer, "help-no-browser"),
         "show_secret" => crate::tr!(localizer, "help-show-secret"),
         "allow_dirty" => crate::tr!(localizer, "help-allow-dirty"),
+        "agent" if owner.starts_with("portone setup") => crate::tr!(localizer, "help-setup-agent"),
+        "scope" if owner.starts_with("portone setup") => crate::tr!(localizer, "help-setup-scope"),
+        "dry_run" if owner == "portone setup update" => crate::tr!(localizer, "help-setup-dry-run"),
         "assistant" => crate::tr!(localizer, "help-assistant"),
         "shell" => crate::tr!(localizer, "help-shell"),
         "id" if owner == "portone store set-default" => crate::tr!(localizer, "help-store-id"),

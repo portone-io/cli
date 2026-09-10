@@ -279,6 +279,7 @@ mod tests {
                 "portone_payment_webhook_list.md",
                 "portone_payment_webhook_resend.md",
                 "portone_setup.md",
+                "portone_setup_update.md",
                 "portone_store.md",
                 "portone_store_set-default.md",
             ]

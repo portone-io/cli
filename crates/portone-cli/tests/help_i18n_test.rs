@@ -41,6 +41,7 @@ fn english_help_preserves_clap_output_for_every_command() {
         vec!["store"],
         vec!["store", "set-default"],
         vec!["setup"],
+        vec!["setup", "update"],
         vec!["completion"],
     ] {
         for flag in ["-h", "--help"] {

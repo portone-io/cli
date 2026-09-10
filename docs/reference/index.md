@@ -17,5 +17,6 @@
 - [portone payment webhook list](portone_payment_webhook_list.md)
 - [portone payment webhook resend](portone_payment_webhook_resend.md)
 - [portone setup](portone_setup.md)
+- [portone setup update](portone_setup_update.md)
 - [portone store](portone_store.md)
 - [portone store set-default](portone_store_set-default.md)

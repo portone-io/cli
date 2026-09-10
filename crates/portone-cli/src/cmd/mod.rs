@@ -28,7 +28,7 @@ pub enum Command {
     Payment(payment::PaymentArgs),
     #[command(about = "Configure the default store")]
     Store(store::StoreArgs),
-    #[command(about = "Install PortOne plugins for AI coding assistants")]
+    #[command(about = "Install PortOne skills and MCP settings for AI coding agents")]
     Setup(setup::SetupArgs),
     #[command(about = "Generate shell completion scripts")]
     Completion(completion::CompletionArgs),

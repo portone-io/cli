@@ -3,8 +3,6 @@ use std::process::Command;
 
 use crate::i18n::LocalizedContext;
 
-use super::assistants::Assistant;
-
 pub trait CommandRunner {
     fn run_capture(&self, cmd: &str, cwd: &Path) -> anyhow::Result<String>;
     fn run_capture_stdout(&self, cmd: &str, cwd: &Path) -> anyhow::Result<String> {
@@ -73,43 +71,12 @@ impl CommandRunner for ShellRunner {
 
 pub fn check_runtime(runner: &dyn CommandRunner, cwd: &Path) -> anyhow::Result<()> {
     for (command, requirement) in [
-        ("git --version", "Git"),
         ("node --version", "Node.js"),
         ("npx --version", "npx (npm)"),
     ] {
         runner.run_capture_stdout(command, cwd).with_lcontext(|| {
             crate::message!("setup-runtime-required", requirement = requirement)
         })?;
-    }
-    Ok(())
-}
-
-pub fn check_assistant(
-    runner: &dyn CommandRunner,
-    assistant: Assistant,
-    cwd: &Path,
-) -> anyhow::Result<()> {
-    let definition = assistant.definition();
-    let hint = || {
-        crate::message!(
-            "setup-assistant-required-capabilities",
-            assistant = definition.display_name,
-            url = definition.setup_url
-        )
-    };
-    let version = runner
-        .run_capture_stdout(definition.version_command, cwd)
-        .with_lcontext(hint)?;
-    if !definition.validate_version_output(&version) {
-        anyhow::bail!(hint());
-    }
-    for &(command, flags) in definition.capabilities {
-        let help = runner
-            .run_capture_stdout(command, cwd)
-            .with_lcontext(hint)?;
-        if flags.iter().any(|flag| !help.contains(flag)) {
-            anyhow::bail!(hint());
-        }
     }
     Ok(())
 }
@@ -139,15 +106,6 @@ pub(crate) mod testing {
 
         pub(crate) fn fail_on(mut self, cmd: &str) -> Self {
             self.fail_commands.push(cmd.to_string());
-            self
-        }
-
-        pub(crate) fn with_output(self, cmd: &str, output: &str) -> Self {
-            self.outputs
-                .borrow_mut()
-                .entry(cmd.to_string())
-                .or_default()
-                .push_back(output.to_string());
             self
         }
 
@@ -204,16 +162,6 @@ mod tests {
                 format!("명령 실패: {command}\nexternal diagnostic")
             );
         }
-    }
-
-    #[test]
-    fn assistant_requires_recognized_version_and_plugin_capabilities() {
-        let runner = MockRunner::new().with_output("claude --version", "zsh: command not found");
-        assert!(check_assistant(&runner, Assistant::Claude, Path::new(".")).is_err());
-        let runner = MockRunner::new().with_output("codex --version", "codex-cli 0.1.0");
-        assert!(check_assistant(&runner, Assistant::Codex, Path::new(".")).is_err());
-        let runner = MockRunner::new().fail_on("codex --version");
-        assert!(check_assistant(&runner, Assistant::Codex, Path::new(".")).is_err());
     }
 
     #[test]

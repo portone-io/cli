@@ -74,11 +74,11 @@ fn process_override_and_config_select_runtime_language() {
         if let Some(language) = override_language {
             command.env("PORTONE_LANG", language);
         }
-        // Missing --assistant fails before any assistant discovery or installation.
+        // Missing setup options fail before downloads or installation.
         let error = if korean {
-            "비대화형 환경에서는 --assistant가 필요합니다"
+            "비대화형 환경에서는 --agent와 --scope가 필요합니다"
         } else {
-            "--assistant is required in non-interactive environments"
+            "--agent and --scope are required in non-interactive environments"
         };
         command
             .args(["setup", "--allow-dirty"])

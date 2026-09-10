@@ -570,6 +570,10 @@ criteria = "safe-to-deploy"
 version = "0.3.104"
 criteria = "safe-to-deploy"
 
+[[exemptions.jsonc-parser]]
+version = "0.33.1"
+criteria = "safe-to-deploy"
+
 [[exemptions.keyring]]
 version = "4.2.0"
 criteria = "safe-to-deploy"

@@ -2,4 +2,8 @@
 "@portone/cli": minor
 ---
 
-Install and refresh user-scoped Claude Code and Codex plugins through their native plugin managers, with prerequisite checks, source-conflict detection, and installation verification. Bundle the PortOne CLI skill in both plugins and fix Claude agent access to the bundled MCP tools. Setup no longer writes project plugin files; `--allow-dirty` remains a hidden compatibility no-op.
+Install four official PortOne skills and MCP configuration for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot CLI, VS Code Copilot, and OpenCode. Select multiple agents with `--agent` and choose project or user scope with `--scope`.
+
+Add `portone setup update` to refresh recorded installations from the latest official release independently of the CLI version, with agent/scope filters and `--dry-run`. Preserve unrelated settings and comments, repair missing or modified managed files, and roll back a file replacement if its installation record cannot be saved.
+
+Keep `--assistant claude|codex|both` as a compatibility option defaulting to user scope and `--allow-dirty` as a hidden no-op. Existing native plugins are not removed automatically. Keep the canonical skills synchronized into the published plugin bundles, including Claude agent access to the bundled MCP tools.

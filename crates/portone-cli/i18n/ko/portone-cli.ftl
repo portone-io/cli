@@ -91,7 +91,7 @@ help-about-status = 인증 상태 확인
 
 help-about-token = 현재 콘솔 액세스 토큰 출력
 
-help-about-setup = AI 코딩 도구용 PortOne 플러그인 설치
+help-about-setup = AI 코딩 에이전트용 PortOne 스킬과 MCP 설정 설치
 
 help-about-completion = 셸 자동완성 스크립트 생성
 
@@ -201,7 +201,7 @@ help-show-secret = 액세스 토큰을 가리지 않고 표시
 
 help-allow-dirty = 호환성을 위해 유지하는 옵션; 동작에 영향 없음
 
-help-assistant = 설정할 AI 코딩 도구 (claude | codex | both)
+help-assistant = 기존 선택 옵션 (claude | codex | both); 기본값은 사용자 범위
 
 help-shell = 자동완성 스크립트를 생성할 셸
 
@@ -405,26 +405,11 @@ auth-remaining-hours = { $hours }시간 { $minutes }분 남음
 auth-remaining-minutes = { $minutes }분 남음
 auth-remaining-seconds = { $seconds }초 남음
 
-setup-starting = 🚀 PortOne 연동 설정을 시작합니다
-setup-preflight = 플러그인 명령, marketplace, MCP 실행 환경 확인 중...
-setup-preflight-complete = 사전 확인 완료 (사용자 범위)
-setup-preflight-failed = 사전 확인 실패; 플러그인을 변경하지 않았습니다
 setup-runtime-required = { $requirement }를 설치하고 PATH에서 실행할 수 있게 한 뒤 setup을 실행하세요. 번들 MCP 서버를 실행하려면 Node.js와 npx가 필요합니다.
-setup-assistant-required-capabilities = 공식 플러그인 관리 기능이 있는 { $assistant }를 설치하거나 업데이트한 뒤 setup을 실행하세요: { $url }
-setup-invalid-command-json = { $command }의 JSON 응답이 올바르지 않습니다. 어시스턴트를 업데이트한 뒤 다시 시도하세요
-setup-marketplace-conflict = { $assistant }에 portone이라는 이름의 다른 소스 또는 확인할 수 없는 소스가 있습니다. `{ $command }`로 확인하고 충돌을 해결한 뒤 다시 시도하세요. 필요한 소스: portone-io/portone-cli. 기존 설정은 보존했습니다.
-setup-plugin-not-ready = { $assistant }의 PortOne 플러그인이 설치 및 활성화된 상태가 아닙니다. `{ $command }`에서 PortOne 플러그인을 활성화한 뒤 setup을 다시 실행하세요.
-setup-invalid-bundle = { $path }에 설치된 { $assistant } 플러그인에 필요한 CLI 스킬 또는 MCP 설정이 없습니다. 업데이트된 PortOne 플러그인이 배포된 뒤 다시 시도하세요.
-setup-incomplete = 선택한 어시스턴트 일부의 설정이 완료되지 않았습니다. 성공한 설치는 유지했습니다. 표시된 오류를 해결하고 setup을 다시 실행하세요.
-setup-mcp-next-steps = 새 어시스턴트 세션에서 /mcp로 번들 PortOne 서버를 확인하세요. setup에서는 MCP 연결을 테스트하지 않았습니다. 콘솔 기능은 사용할 때 로그인을 요청합니다.
-setup-configuring-plugin = { $assistant }용 PortOne 플러그인 설정 중...
-setup-plugin-configured = { $assistant } 사용자 플러그인 설치 및 활성화 완료; CLI 스킬과 MCP 설정 확인 완료
-setup-plugin-failed = { $assistant }용 플러그인 설정 실패
-setup-complete = ✅ 플러그인 설정이 완료되었습니다. 새 세션에서 스킬과 MCP 도구를 사용하세요.
+setup-incomplete = 일부 설치 파일을 업데이트하지 못했습니다. 성공한 변경은 유지했습니다. 표시된 오류를 해결하고 명령을 다시 실행하세요.
+setup-mcp-next-steps = 에이전트를 다시 시작하고 MCP 서버 목록에서 PortOne을 확인하세요. setup에서는 MCP 연결을 테스트하지 않았습니다. 콘솔 기능은 사용할 때 로그인을 요청합니다.
+setup-complete = 스킬과 MCP 설정을 설치했습니다.
 setup-unsupported-assistant = 지원하지 않는 어시스턴트: { $assistant }
-setup-assistant-required = 비대화형 환경에서는 --assistant가 필요합니다 (claude | codex | both)
-setup-assistant-question = 어떤 어시스턴트를 설정할까요?
-setup-selection-hint = ↑↓로 이동, Enter로 선택, 입력하여 필터링
 setup-prompt-canceled-indicator = <취소됨>
 setup-prompt-not-tty = 입력 장치가 TTY가 아닙니다
 setup-prompt-canceled = 사용자가 작업을 취소했습니다
@@ -432,12 +417,6 @@ setup-prompt-interrupted = 사용자가 작업을 중단했습니다
 setup-prompt-invalid-config = 질문 설정이 올바르지 않습니다: { $detail }
 setup-prompt-io-error = 입출력 오류
 setup-prompt-custom-error = 사용자 정의 오류
-setup-next-steps = 📋 다음 단계
-setup-start-assistant = 1. 새 { $assistant } 세션을 시작하세요:
-setup-run-slash-command = 2. 다음 슬래시 명령을 실행하세요:
-setup-codex-prompts = 2. `portone-codex` 플러그인을 설치한 상태에서 다음과 같이 요청해 보세요:
-setup-example-implement = PortOne V2 일회성 결제 연동을 구현해 줘
-setup-example-review = 이 프로젝트의 PortOne 연동을 검토해 줘
 setup-command-run-failed = 명령 실행 실패: { $command }
 setup-command-output-failed = 명령 실패: { $command }
     { $output }
@@ -534,3 +513,27 @@ store-invalid-id = 상점 ID는 비어 있거나 제어 문자를 포함할 수 
 auth-login-store-unavailable = portone: 로그인했지만 기본 상점을 확인하지 못했습니다: { $error }
 auth-login-store-selected = 기본 상점: { $store }
 auth-login-store-unset = 기본 상점이 설정되지 않았습니다. 나중에 `portone store set-default`로 설정하세요.
+help-about-setup-update = 기록된 PortOne 스킬과 MCP 설정 업데이트
+help-setup-agent = 설정할 에이전트 (쉼표로 구분하거나 여러 번 지정)
+help-setup-scope = 설치 범위 (project | user)
+help-setup-dry-run = 파일을 변경하지 않고 업데이트 내용 확인
+setup-options-required = 비대화형 환경에서는 --agent와 --scope가 필요합니다 (기존 --assistant도 사용 가능)
+setup-update-legacy = setup update의 필터는 --agent를 사용하세요. --assistant는 setup에서만 지원합니다
+setup-agent-question = 어떤 에이전트를 설정할까요?
+setup-multiselect-hint = ↑↓로 이동, Space로 선택, Enter로 확인
+setup-agent-required = 에이전트를 하나 이상 선택하세요
+setup-scope-question = 스킬과 MCP 설정을 어디에 설치할까요?
+setup-scope-project = 현재 프로젝트
+setup-scope-user = 현재 사용자
+setup-runtime-ready = Node.js와 npx를 사용할 수 있습니다
+setup-downloading = 최신 공식 PortOne 스킬과 MCP 설정을 내려받는 중...
+setup-download-failed = PortOne 설치 파일을 내려받지 못했습니다. 기존 설치는 유지했습니다
+setup-source = 소스: { $reference } ({ $commit })
+setup-state-unchanged = 최신 상태
+setup-state-would-update = 업데이트 예정
+setup-state-updated = 업데이트 완료
+setup-state-failed = 실패
+setup-write-failed = 설치 파일을 업데이트하지 못했습니다: { $detail }
+setup-not-configured = 조건에 맞는 설치 기록이 없습니다. 먼저 portone setup을 실행하세요.
+setup-dry-run-complete = 미리보기를 마쳤습니다. 파일과 설치 기록은 변경하지 않았습니다.
+setup-update-hint = 설치한 스킬과 MCP 설정은 portone setup update로 업데이트하세요. 업데이트는 자동으로 실행되지 않습니다.
