@@ -10,6 +10,6 @@ dist/
 
 /target
 
-# Binaries copied into platform packages by generate-packages.js during release
+# Binaries copied into platform packages by generate-packages.ts during release
 packages/@portone/cli-*/portone
 packages/@portone/cli-*/portone.exe

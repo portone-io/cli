@@ -267,7 +267,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate npm packages
-        run: node packages/@portone/cli/scripts/generate-packages.js
+        run: node packages/@portone/cli/scripts/generate-packages.ts
 
       - name: Pack npm packages
         run: |

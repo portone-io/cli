@@ -4,19 +4,30 @@ import * as fs from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { format } from "node:util";
+import type cliManifest from "../package.json";
+
+type VersionedManifest = {
+  version: string;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+};
 
 const CLI_ROOT = resolve(fileURLToPath(import.meta.url), "../..");
 const PACKAGES_ROOT = resolve(CLI_ROOT, "..");
 const REPO_ROOT = resolve(PACKAGES_ROOT, "../..");
 const MANIFEST_PATH = resolve(CLI_ROOT, "package.json");
 
-const rootManifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8"));
+const rootManifest: typeof cliManifest = JSON.parse(
+  fs.readFileSync(MANIFEST_PATH, "utf-8"),
+);
 
-function getName(platform, arch, prefix = "cli") {
+function getName(platform: string, arch: string, prefix = "cli") {
   return format(`${prefix}-${platform}`, arch);
 }
 
-function copyBinaryToNativePackage(platform, arch) {
+function copyBinaryToNativePackage(platform: string, arch: string) {
   const os = platform.split("-")[0];
   const buildName = getName(platform, arch);
   const packageRoot = resolve(PACKAGES_ROOT, buildName);
@@ -87,13 +98,15 @@ function copyBinaryToNativePackage(platform, arch) {
  * Updates the version in the `package.json` for the given `packageName` to
  * match the version specified in the `rootManifest`.
  */
-function updateVersionInJsPackage(packageName) {
+function updateVersionInJsPackage(packageName: string) {
   const packageRoot = resolve(PACKAGES_ROOT, packageName);
   const manifestPath = resolve(packageRoot, "package.json");
 
   const { version } = rootManifest;
 
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+  const manifest: VersionedManifest = JSON.parse(
+    fs.readFileSync(manifestPath, "utf-8"),
+  );
   manifest.version = version;
   updateVersionInDependencies(manifest.dependencies, version);
   updateVersionInDependencies(manifest.devDependencies, version);
@@ -108,7 +121,10 @@ function updateVersionInJsPackage(packageName) {
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 }
 
-function updateVersionInDependencies(dependencies, version) {
+function updateVersionInDependencies(
+  dependencies: Record<string, string> | undefined,
+  version: string,
+) {
   if (dependencies) {
     for (const dependency of Object.keys(dependencies)) {
       if (dependency.startsWith("@portone/")) {

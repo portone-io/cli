@@ -10,7 +10,9 @@ import { fileURLToPath } from "node:url";
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../..");
 const MANIFEST_PATH = resolve(REPO_ROOT, "packages/@portone/cli/package.json");
 
-const { version } = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8"));
+const { version }: { version?: string } = JSON.parse(
+  fs.readFileSync(MANIFEST_PATH, "utf-8"),
+);
 if (!version) {
   console.error(`No version found in ${MANIFEST_PATH}`);
   process.exit(1);
@@ -26,7 +28,7 @@ syncFile(
   /(\[\[package\]\]\nname = "portone-cli"\nversion = ")[^"]+(")/,
 );
 
-function syncFile(path, pattern) {
+function syncFile(path: string, pattern: RegExp) {
   const content = fs.readFileSync(path, "utf-8");
   if (!pattern.test(content)) {
     console.error(`Version entry not found in ${path}`);

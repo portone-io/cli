@@ -16,6 +16,40 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  scripts:
+    name: Scripts (Node ${{ matrix.node }})
+    strategy:
+      matrix:
+        node: [22.18.0, 24]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@903f9c1a6ebcba6cf41d87230be49611ac97822e
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check script formatting and lint
+        run: pnpm exec biome ci .
+
+      - name: Typecheck scripts
+        run: pnpm typecheck
+
+      - name: Test scripts
+        run: pnpm test:scripts
+
   rust:
     name: Rust (${{ matrix.os }})
     strategy:
@@ -51,10 +85,6 @@ jobs:
       - name: Plugin skills up to date
         if: matrix.os == 'ubuntu-24.04'
         run: cargo xtask sync-plugin-skills --check
-
-      - name: Schema sync workflow tests
-        if: matrix.os == 'ubuntu-24.04'
-        run: node --test scripts/sync-openapi.test.mjs
 
       - name: Check musl target
         if: matrix.os == 'ubuntu-24.04'

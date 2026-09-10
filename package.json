@@ -7,10 +7,18 @@
   "repository": "https://github.com/portone-io/portone-cli",
   "packageManager": "pnpm@11.24.0+sha512.bd27e345e976dcb0be0b7a1228217b049a817e21b1f355c90dbe7dc46671895a8bc1e6d06c24554505ea93ea0b45f489a27ec1bfbc8de6a9659fca0f16fa0000",
   "scripts": {
-    "version": "changeset version && node scripts/sync-cargo-version.mjs && pnpm i --lockfile-only"
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "test:scripts": "node --test scripts/*.test.ts",
+    "version": "changeset version && node scripts/sync-cargo-version.ts && pnpm i --lockfile-only"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.30.0"
+    "@biomejs/biome": "2.5.11",
+    "@changesets/cli": "^2.30.0",
+    "@types/node": "^22.20.1",
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": "^22.18.0 || >=24.0.0"

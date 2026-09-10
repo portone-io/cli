@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import {
+  execFileSync,
+  type SpawnSyncReturns,
+  spawnSync,
+} from "node:child_process";
 import {
   chmodSync,
   mkdirSync,
@@ -13,6 +17,11 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+type GhEvent = {
+  args: string[];
+  body: string | null;
+};
+
 const syncScript = fileURLToPath(new URL("./sync-openapi.sh", import.meta.url));
 const schemaPath = "crates/portone-schema-macros/schema/v2.openapi.json";
 const checks = [
@@ -24,7 +33,7 @@ const checks = [
   "vet --locked",
 ];
 
-function git(cwd, ...args) {
+function git(cwd: string, ...args: string[]) {
   return execFileSync("git", args, {
     cwd,
     encoding: "utf8",
@@ -94,7 +103,7 @@ else if (!['list', 'edit'].includes(args[1])) process.exit(2);
     chmodSync(join(bin, "cargo"), 0o755);
     chmodSync(join(bin, "gh"), 0o755);
     let runNumber = 0;
-    function run(contents, failure = "") {
+    function run(contents: string, failure = "") {
       const checkout = join(root, `checkout-${runNumber++}`);
       git(root, "clone", remote, checkout);
       writeFileSync(source, contents);
@@ -114,22 +123,28 @@ else if (!['list', 'edit'].includes(args[1])) process.exit(2);
         },
       });
     }
-    function succeeded(output) {
+    function succeeded(output: SpawnSyncReturns<string>) {
       assert.equal(output.status, 0, output.stdout + output.stderr);
       assert.deepEqual(
         readFileSync(checkLog, "utf8").trim().split("\n"),
         checks,
       );
     }
-    function log() {
+    function log(): GhEvent[] {
       try {
         return readFileSync(events, "utf8")
           .trim()
           .split("\n")
           .filter(Boolean)
-          .map(JSON.parse);
+          .map((line): GhEvent => JSON.parse(line));
       } catch (error) {
-        if (error.code === "ENOENT") return [];
+        if (
+          error instanceof Error &&
+          "code" in error &&
+          error.code === "ENOENT"
+        ) {
+          return [];
+        }
         throw error;
       }
     }
@@ -151,12 +166,14 @@ else if (!['list', 'edit'].includes(args[1])) process.exit(2);
       log().map((event) => event.args[1]),
       ["list", "create"],
     );
-    assert.match(log().at(-1).body, /commit\/a{40}/);
-    assert.match(log().at(-1).body, /\n\n검증:/);
+    const createdPr = log().at(-1);
+    assert.ok(createdPr?.body);
+    assert.match(createdPr.body, /commit\/a{40}/);
+    assert.match(createdPr.body, /\n\n검증:/);
 
     succeeded(run('{"version":2}\n'));
     assert.equal(git(remote, "rev-parse", "chore/openapi"), first);
-    assert.equal(log().at(-1).args[1], "edit");
+    assert.equal(log().at(-1)?.args[1], "edit");
 
     succeeded(run('{"version":3}\n'));
     const updated = git(remote, "rev-parse", "chore/openapi");
