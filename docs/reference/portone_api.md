@@ -1,5 +1,7 @@
 # portone api
 
+English | [한국어](ko/portone_api.md)
+
 Makes an authenticated HTTP request to the PortOne V2 API and prints the response.
 
 The `<ENDPOINT>` argument can be a REST path such as `/payments/{paymentId}`

@@ -1,5 +1,7 @@
 # portone completion
 
+English | [한국어](ko/portone_completion.md)
+
 Generate shell completion scripts
 
 ```

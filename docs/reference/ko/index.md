@@ -1,6 +1,6 @@
-# PortOne CLI reference
+# PortOne CLI 명령어 참조
 
-English | [한국어](ko/index.md)
+[English](../index.md) | 한국어
 
 - [portone](portone.md)
 - [portone api](portone_api.md)

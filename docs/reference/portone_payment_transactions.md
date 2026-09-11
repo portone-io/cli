@@ -1,5 +1,7 @@
 # portone payment transactions
 
+English | [한국어](ko/portone_payment_transactions.md)
+
 List payment attempts (unstable API)
 
 ```

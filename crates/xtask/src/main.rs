@@ -15,7 +15,7 @@ struct Xtask {
 
 #[derive(Subcommand)]
 enum Command {
-    #[command(about = "Generate the command reference in docs/reference")]
+    #[command(about = "Generate the English and Korean command references in docs/reference")]
     GenDocs(GenDocsArgs),
     #[command(about = "Synchronize canonical skills into plugin bundles")]
     SyncPluginSkills(SyncPluginSkillsArgs),
@@ -69,29 +69,18 @@ fn run_gen_docs(args: GenDocsArgs) -> ExitCode {
     let dir = args
         .out_dir
         .unwrap_or_else(|| workspace_root().join("docs/reference"));
-    let pages = gen_docs::render_all();
-    if args.check {
-        match gen_docs::check(&dir, &pages) {
-            Ok(stale) if stale.is_empty() => ExitCode::SUCCESS,
-            Ok(stale) => {
-                for path in stale {
-                    eprintln!("stale: {}", path.display());
-                }
-                eprintln!("run `cargo xtask gen-docs` to update them");
-                ExitCode::FAILURE
+    match gen_docs::run(&dir, args.check) {
+        Ok(stale) if !stale.is_empty() => {
+            for path in stale {
+                eprintln!("stale: {}", path.display());
             }
-            Err(err) => {
-                eprintln!("xtask: {err}");
-                ExitCode::FAILURE
-            }
+            eprintln!("run `cargo xtask gen-docs` to update them");
+            ExitCode::FAILURE
         }
-    } else {
-        match gen_docs::write(&dir, &pages) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(err) => {
-                eprintln!("xtask: {err}");
-                ExitCode::FAILURE
-            }
+        Ok(_) => ExitCode::SUCCESS,
+        Err(err) => {
+            eprintln!("xtask: {err}");
+            ExitCode::FAILURE
         }
     }
 }

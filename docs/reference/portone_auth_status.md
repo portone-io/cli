@@ -1,5 +1,7 @@
 # portone auth status
 
+English | [한국어](ko/portone_auth_status.md)
+
 View authentication status
 
 ```

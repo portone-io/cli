@@ -1,5 +1,7 @@
 # portone setup update
 
+English | [한국어](ko/portone_setup_update.md)
+
 Update recorded PortOne skills and MCP settings
 
 ```

@@ -1,5 +1,7 @@
 # portone-cli
 
+[English](README.md) | [한국어](README.ko.md)
+
 [![npm version](https://img.shields.io/npm/v/%40portone%2Fcli)](https://www.npmjs.com/package/@portone/cli)
 [![license](https://img.shields.io/github/license/portone-io/portone-cli)](https://github.com/portone-io/portone-cli/blob/main/LICENSE)
 
@@ -52,8 +54,9 @@ platform.
 Help, prompts, authentication status, and CLI diagnostics use the selected
 language. Command names, flags, API responses, tokens, timestamps, and external
 error details are unchanged. Argument-parsing diagnostics from clap remain in
-English. Generated completion scripts and reference documentation use English
-regardless of the selected language.
+English. Generated completion scripts use English regardless of the selected
+language. Reference documentation is generated in both English and Korean,
+independently of the selected language.
 
 For agent or CI invocations, set `PORTONE_LANG=en` for consistent diagnostics
 without changing the user's saved preference. On PowerShell, set the process
@@ -507,6 +510,14 @@ Open a new shell to enable `portone <TAB>` completion.
 Detailed documentation for every command and flag is available in
 [docs/reference](https://github.com/portone-io/portone-cli/blob/main/docs/reference/index.md).
 It is generated from the CLI definitions and checked by CI.
+
+In the source repository, regenerate both language versions or check that they
+are up to date:
+
+```bash
+cargo xtask gen-docs
+cargo xtask gen-docs --check
+```
 
 For patterns that help AI agents call `portone`, see
 [skills/portone-cli/SKILL.md](https://github.com/portone-io/portone-cli/blob/main/skills/portone-cli/SKILL.md).

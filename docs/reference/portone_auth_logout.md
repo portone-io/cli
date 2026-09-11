@@ -1,5 +1,7 @@
 # portone auth logout
 
+English | [한국어](ko/portone_auth_logout.md)
+
 Remove local credentials without revoking the server-side token
 
 ```

@@ -17,7 +17,8 @@
   "description": "PortOne \uacb0\uc81c/\ubcf8\uc778\uc778\uc99d \uc5f0\ub3d9\uc744 \uc704\ud55c CLI \ub3c4\uad6c",
   "files": [
     "bin/portone.js",
-    "README.md"
+    "README.md",
+    "README.ko.md"
   ],
   "engines": {
     "node": "^22.18.0 || >=24.0.0"

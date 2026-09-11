@@ -5,19 +5,40 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use clap::{Arg, ArgAction, Command};
+use portone_cli::i18n::{Language, Localizer};
 
-pub fn render_all() -> BTreeMap<String, String> {
-    let mut root = portone_cli::cmd::help::command(&portone_cli::i18n::Localizer::english());
+pub fn run(dir: &Path, check_only: bool) -> io::Result<Vec<PathBuf>> {
+    let mut stale = Vec::new();
+    for (language, subdir) in [(Language::English, ""), (Language::Korean, "ko")] {
+        let dir = dir.join(subdir);
+        let pages = render_all(language);
+        if check_only {
+            stale.extend(check(&dir, &pages)?);
+        } else {
+            write(&dir, &pages)?;
+        }
+    }
+    stale.sort();
+    Ok(stale)
+}
+
+fn render_all(language: Language) -> BTreeMap<String, String> {
+    let mut root = portone_cli::cmd::help::command(&Localizer::new(language));
     root.build();
     let mut pages = BTreeMap::new();
-    walk(&mut root, vec!["portone".to_string()], &mut pages);
-    let index = render_index(&pages);
+    walk(&mut root, vec!["portone".to_string()], &mut pages, language);
+    let index = render_index(&pages, language);
     pages.insert("index.md".to_string(), index);
     pages
 }
 
-fn walk(cmd: &mut Command, path: Vec<String>, pages: &mut BTreeMap<String, String>) {
-    let page = render_page(cmd, &path);
+fn walk(
+    cmd: &mut Command,
+    path: Vec<String>,
+    pages: &mut BTreeMap<String, String>,
+    language: Language,
+) {
+    let page = render_page(cmd, &path, language);
     pages.insert(format!("{}.md", path.join("_")), page);
     for sub in cmd.get_subcommands_mut() {
         if sub.get_name() == "help" || sub.is_hide_set() {
@@ -25,14 +46,34 @@ fn walk(cmd: &mut Command, path: Vec<String>, pages: &mut BTreeMap<String, Strin
         }
         let mut child_path = path.clone();
         child_path.push(sub.get_name().to_string());
-        walk(sub, child_path, pages);
+        walk(sub, child_path, pages, language);
     }
 }
 
-fn render_page(cmd: &mut Command, path: &[String]) -> String {
+fn text(language: Language, english: &'static str, korean: &'static str) -> &'static str {
+    match language {
+        Language::English => english,
+        Language::Korean => korean,
+    }
+}
+
+fn language_links(file: &str, language: Language) -> String {
+    match language {
+        Language::English => format!("English | [한국어](ko/{file})"),
+        Language::Korean => format!("[English](../{file}) | 한국어"),
+    }
+}
+
+fn render_page(cmd: &mut Command, path: &[String], language: Language) -> String {
     let full_name = path.join(" ");
     let mut page = String::new();
     let _ = writeln!(page, "# {full_name}");
+    let _ = writeln!(
+        page,
+        "\n{}",
+        language_links(&format!("{}.md", path.join("_")), language)
+    );
+    let description = text(language, "Description", "설명");
 
     let about = cmd
         .get_long_about()
@@ -59,7 +100,9 @@ fn render_page(cmd: &mut Command, path: &[String]) -> String {
     if !subcommands.is_empty() {
         let _ = writeln!(
             page,
-            "\n## Commands\n\n| Command | Description |\n| --- | --- |"
+            "\n## {}\n\n| {} | {description} |\n| --- | --- |",
+            text(language, "Commands", "명령어"),
+            text(language, "Command", "명령어")
         );
         for (name, about) in subcommands {
             let _ = writeln!(
@@ -78,14 +121,16 @@ fn render_page(cmd: &mut Command, path: &[String]) -> String {
     if !positionals.is_empty() {
         let _ = writeln!(
             page,
-            "\n## Arguments\n\n| Argument | Description |\n| --- | --- |"
+            "\n## {}\n\n| {} | {description} |\n| --- | --- |",
+            text(language, "Arguments", "인자"),
+            text(language, "Argument", "인자")
         );
         for arg in positionals {
             let _ = writeln!(
                 page,
                 "| `<{}>` | {} |",
                 value_name(arg),
-                escape_cell(&help_text(arg))
+                escape_cell(&help_text(arg, language))
             );
         }
     }
@@ -97,28 +142,36 @@ fn render_page(cmd: &mut Command, path: &[String]) -> String {
     if !options.is_empty() {
         let _ = writeln!(
             page,
-            "\n## Options\n\n| Option | Description |\n| --- | --- |"
+            "\n## {}\n\n| {} | {description} |\n| --- | --- |",
+            text(language, "Options", "옵션"),
+            text(language, "Option", "옵션")
         );
         for arg in options {
             let _ = writeln!(
                 page,
                 "| `{}` | {} |",
                 option_syntax(arg),
-                escape_cell(&help_text(arg))
+                escape_cell(&help_text(arg, language))
             );
         }
     }
 
     if let Some(examples) = cmd.get_after_long_help() {
         let examples = examples.to_string();
-        let _ = writeln!(page, "\n## Examples\n\n```sh\n{}\n```", examples.trim_end());
+        let _ = writeln!(
+            page,
+            "\n## {}\n\n```sh\n{}\n```",
+            text(language, "Examples", "예제"),
+            examples.trim_end()
+        );
     }
 
     if path.len() > 1 {
         let parent = &path[..path.len() - 1];
         let _ = writeln!(
             page,
-            "\n## See also\n\n- [{}]({}.md)",
+            "\n## {}\n\n- [{}]({}.md)",
+            text(language, "See also", "참고"),
             parent.join(" "),
             parent.join("_")
         );
@@ -127,9 +180,14 @@ fn render_page(cmd: &mut Command, path: &[String]) -> String {
     page
 }
 
-fn render_index(pages: &BTreeMap<String, String>) -> String {
+fn render_index(pages: &BTreeMap<String, String>, language: Language) -> String {
     let mut index = String::new();
-    let _ = writeln!(index, "# PortOne CLI reference");
+    let _ = writeln!(
+        index,
+        "# {}",
+        text(language, "PortOne CLI reference", "PortOne CLI 명령어 참조")
+    );
+    let _ = writeln!(index, "\n{}", language_links("index.md", language));
     let _ = writeln!(index);
     for file in pages.keys() {
         let name = file.trim_end_matches(".md").replace('_', " ");
@@ -138,7 +196,7 @@ fn render_index(pages: &BTreeMap<String, String>) -> String {
     index
 }
 
-pub fn write(dir: &Path, pages: &BTreeMap<String, String>) -> io::Result<()> {
+fn write(dir: &Path, pages: &BTreeMap<String, String>) -> io::Result<()> {
     fs::create_dir_all(dir)?;
     for entry in fs::read_dir(dir)? {
         let path = entry?.path();
@@ -152,7 +210,7 @@ pub fn write(dir: &Path, pages: &BTreeMap<String, String>) -> io::Result<()> {
     Ok(())
 }
 
-pub fn check(dir: &Path, pages: &BTreeMap<String, String>) -> io::Result<Vec<PathBuf>> {
+fn check(dir: &Path, pages: &BTreeMap<String, String>) -> io::Result<Vec<PathBuf>> {
     let mut stale = Vec::new();
     for (file, content) in pages {
         let path = dir.join(file);
@@ -224,8 +282,8 @@ fn value_name(arg: &Arg) -> String {
         .unwrap_or_else(|| arg.get_id().to_string().to_uppercase())
 }
 
-fn help_text(arg: &Arg) -> String {
-    let mut text = arg
+fn help_text(arg: &Arg, language: Language) -> String {
+    let mut help = arg
         .get_help()
         .map(|help| help.to_string())
         .unwrap_or_default();
@@ -237,13 +295,18 @@ fn help_text(arg: &Arg) -> String {
             .map(|value| value.get_name().to_string())
             .collect();
         if !values.is_empty() {
-            if !text.is_empty() {
-                text.push(' ');
+            if !help.is_empty() {
+                help.push(' ');
             }
-            let _ = write!(text, "[possible values: {}]", values.join(", "));
+            let _ = write!(
+                help,
+                "[{}: {}]",
+                text(language, "possible values", "가능한 값"),
+                values.join(", ")
+            );
         }
     }
-    text
+    help
 }
 
 fn escape_cell(text: &str) -> String {
@@ -253,10 +316,32 @@ fn escape_cell(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    struct OutputDir(PathBuf);
+
+    impl OutputDir {
+        fn new() -> Self {
+            static NEXT_ID: AtomicU64 = AtomicU64::new(0);
+            let path = std::env::temp_dir().join(format!(
+                "portone-gen-docs-{}-{}",
+                std::process::id(),
+                NEXT_ID.fetch_add(1, Ordering::Relaxed)
+            ));
+            fs::create_dir(&path).unwrap();
+            Self(path)
+        }
+    }
+
+    impl Drop for OutputDir {
+        fn drop(&mut self) {
+            fs::remove_dir_all(&self.0).unwrap();
+        }
+    }
 
     #[test]
     fn render_all_contains_expected_pages() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let files: Vec<&str> = pages.keys().map(String::as_str).collect();
         assert_eq!(
             files,
@@ -288,7 +373,7 @@ mod tests {
 
     #[test]
     fn subcommand_usage_includes_full_path() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let login = &pages["portone_auth_login.md"];
         assert!(login.starts_with("# portone auth login\n"));
         assert!(login.contains("portone auth login [OPTIONS]"), "{login}");
@@ -297,7 +382,7 @@ mod tests {
 
     #[test]
     fn api_page_lists_flattened_auth_options() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let api = &pages["portone_api.md"];
         assert!(api.contains("`-X, --method <METHOD>`"));
         assert!(api.contains("`--profile <NAME>`"));
@@ -307,7 +392,7 @@ mod tests {
 
     #[test]
     fn nested_payment_pages_include_full_paths_and_inherited_options() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let webhook = &pages["portone_payment_webhook_resend.md"];
         assert!(
             webhook.contains("portone payment webhook resend [OPTIONS] <PAYMENT_ID>"),
@@ -325,7 +410,7 @@ mod tests {
 
     #[test]
     fn api_page_wraps_examples_in_code_fence() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let api = &pages["portone_api.md"];
         assert!(api.contains("\n## Examples\n\n```sh\n# "), "{api}");
         assert!(api.contains("$ portone api graphql"));
@@ -334,14 +419,14 @@ mod tests {
 
     #[test]
     fn cells_escape_pipes() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let setup = &pages["portone_setup.md"];
         assert!(setup.contains("(claude \\| codex \\| both)"));
     }
 
     #[test]
     fn completion_page_lists_possible_shells() {
-        let pages = render_all();
+        let pages = render_all(Language::English);
         let completion = &pages["portone_completion.md"];
         assert!(
             completion.contains("[possible values: bash, elvish, fish, powershell, zsh]"),
@@ -351,6 +436,143 @@ mod tests {
 
     #[test]
     fn render_is_deterministic() {
-        assert_eq!(render_all(), render_all());
+        for language in [Language::English, Language::Korean] {
+            assert_eq!(render_all(language), render_all(language));
+        }
+    }
+
+    fn executable_lines(page: &str) -> Vec<&str> {
+        let mut in_code = false;
+        page.lines()
+            .filter(|line| {
+                if line.starts_with("```") {
+                    in_code = !in_code;
+                    return false;
+                }
+                in_code && !line.trim_start().starts_with('#') && !line.trim().is_empty()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn translations_preserve_pages_command_syntax_and_executable_examples() {
+        let english = render_all(Language::English);
+        let korean = render_all(Language::Korean);
+        assert_eq!(
+            english.keys().collect::<Vec<_>>(),
+            korean.keys().collect::<Vec<_>>()
+        );
+        for (file, english_page) in &english {
+            let korean_page = &korean[file];
+            assert_eq!(
+                executable_lines(english_page),
+                executable_lines(korean_page),
+                "{file}"
+            );
+            // The first table cell contains command links, argument names, or flag syntax.
+            let syntax = |page: &str| -> Vec<String> {
+                page.lines()
+                    .filter(|line| line.starts_with("| `") || line.starts_with("| ["))
+                    .map(|line| line.split(" | ").next().unwrap().to_string())
+                    .collect()
+            };
+            assert_eq!(syntax(english_page), syntax(korean_page), "{file}");
+            assert!(!english_page.contains('\u{1b}'), "{file}");
+            assert!(!korean_page.contains('\u{1b}'), "ko/{file}");
+        }
+    }
+
+    #[test]
+    fn korean_pages_translate_labels_descriptions_and_metadata() {
+        let pages = render_all(Language::Korean);
+        assert!(pages["index.md"].starts_with("# PortOne CLI 명령어 참조\n"));
+        let root = &pages["portone.md"];
+        assert!(root.contains("## 명령어\n\n| 명령어 | 설명 |"));
+        assert!(root.contains("PortOne 인증 관리"));
+        let api = &pages["portone_api.md"];
+        assert!(api.contains("## 인자\n\n| 인자 | 설명 |"));
+        assert!(api.contains("## 옵션\n\n| 옵션 | 설명 |"));
+        assert!(api.contains("## 예제\n\n```sh\n# 결제 조회"));
+        assert!(api.contains("## 참고"));
+        let completion = &pages["portone_completion.md"];
+        assert_eq!(
+            completion
+                .matches("[가능한 값: bash, elvish, fish, powershell, zsh]")
+                .count(),
+            1
+        );
+        assert!(!completion.contains("possible values"));
+    }
+
+    #[test]
+    fn generated_links_resolve_within_custom_output_directory() {
+        let dir = OutputDir::new();
+        run(&dir.0, false).unwrap();
+        for (language, subdir) in [(Language::English, ""), (Language::Korean, "ko")] {
+            for (file, page) in render_all(language) {
+                let language_link = match language {
+                    Language::English => format!("[한국어](ko/{file})"),
+                    Language::Korean => format!("[English](../{file})"),
+                };
+                assert!(page.contains(&language_link), "{subdir}/{file}");
+                for link in page.split("](").skip(1) {
+                    let target = link.split(')').next().unwrap();
+                    if target.contains("://") {
+                        continue;
+                    }
+                    assert!(
+                        dir.0.join(subdir).join(target).is_file(),
+                        "{subdir}/{file}: {target}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn check_reports_missing_locales_without_creating_output() {
+        let dir = OutputDir::new();
+        let output = dir.0.join("reference");
+        let stale = run(&output, true).unwrap();
+        assert_eq!(stale.len(), render_all(Language::English).len() * 2);
+        assert!(stale.contains(&output.join("index.md")));
+        assert!(stale.contains(&output.join("ko/index.md")));
+        assert!(!output.exists());
+    }
+
+    #[test]
+    fn generation_repairs_missing_changed_and_obsolete_pages_in_both_languages() {
+        let dir = OutputDir::new();
+        run(&dir.0, false).unwrap();
+        assert!(run(&dir.0, true).unwrap().is_empty());
+        let mut expected = Vec::new();
+        for subdir in ["", "ko"] {
+            let output = dir.0.join(subdir);
+            let missing = output.join("portone.md");
+            let changed = output.join("index.md");
+            let obsolete = output.join("obsolete.md");
+            fs::remove_file(&missing).unwrap();
+            fs::write(&changed, "outdated").unwrap();
+            fs::write(&obsolete, "obsolete command").unwrap();
+            fs::write(output.join("notes.txt"), "keep this file").unwrap();
+            expected.extend([missing, changed, obsolete]);
+        }
+        expected.sort();
+        assert_eq!(run(&dir.0, true).unwrap(), expected);
+        run(&dir.0, false).unwrap();
+        assert!(run(&dir.0, true).unwrap().is_empty());
+        for subdir in ["", "ko"] {
+            let output = dir.0.join(subdir);
+            assert!(!output.join("obsolete.md").exists());
+            assert_eq!(
+                fs::read_to_string(output.join("notes.txt")).unwrap(),
+                "keep this file"
+            );
+            // Generated files checked out with CRLF remain current on Windows.
+            let index = output.join("index.md");
+            let contents = fs::read_to_string(&index).unwrap().replace('\n', "\r\n");
+            fs::write(index, contents).unwrap();
+        }
+        assert!(run(&dir.0, true).unwrap().is_empty());
     }
 }

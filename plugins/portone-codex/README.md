@@ -1,5 +1,7 @@
 # PortOne Codex Plugin
 
+[English](README.md) | [한국어](README.ko.md)
+
 A Codex plugin for implementing and reviewing PortOne payment integrations.
 
 ## Features
@@ -11,17 +13,41 @@ A Codex plugin for implementing and reviewing PortOne payment integrations.
 
 ## Installation
 
-Install Codex, Git, Node.js, and `npx`, then run:
+### Set up skills and MCP
+
+Install the [PortOne CLI](../../README.md#installation), Node.js, and `npx`,
+then configure Codex for your user account:
 
 ```bash
-portone setup --assistant codex
+portone setup --agent codex --scope user
 ```
 
-Setup installs `portone-codex@portone` for your user account through Codex's
-plugin manager. Running it again refreshes the marketplace and updates the
-plugin. It does not install or update Codex itself.
+Setup copies the four official PortOne skills and configures the PortOne MCP
+server directly. It does not install the native Codex plugin or install or
+update Codex itself. Git and the Codex CLI are not required to run setup.
 
-The plugin includes its MCP configuration. Its bundled `.mcp.json` uses:
+Update this installation explicitly with:
+
+```bash
+portone setup update --agent codex --scope user
+```
+
+Start a new Codex session after setup, inspect its MCP servers, and ask Codex
+to retrieve a PortOne document. Follow any workspace trust or MCP approval
+prompts from Codex. Console features may request login when used; setup does
+not log in or save tokens. See the [setup guide](../../README.md#portone-setup)
+for project scope, destinations, and update behavior.
+
+### Native plugin installation
+
+To use the native plugin, install `portone-codex` through Codex's plugin
+manager using this repository's
+[`portone` marketplace](../../.agents/plugins/marketplace.json).
+The plugin bundles the same four skills and its own MCP configuration.
+If you switch to direct setup, disable an existing plugin when it duplicates
+the installed skills or server.
+
+The native plugin's bundled `.mcp.json` uses:
 
 ```json
 {
@@ -34,11 +60,6 @@ The plugin includes its MCP configuration. Its bundled `.mcp.json` uses:
   }
 }
 ```
-
-Start a new Codex session after setup, check the PortOne server with `/mcp`,
-and ask Codex to retrieve a PortOne document. If setup reports that the plugin
-is inactive, enable it in `/plugins` and rerun setup. Console features may
-request login when used; setup does not log in or save tokens.
 
 ## Usage
 
@@ -58,12 +79,20 @@ Use the PortOne CLI to inspect failed test payments.
 - `portone-guide`: explain PortOne concepts and locate official guidance.
 - `portone-cli`: authenticate and use PortOne CLI payment and API commands.
 
-## Maintaining the CLI skill
+## Maintaining the bundled skills
 
-`skills/portone-cli/` is a generated copy of the repository's root
-`skills/portone-cli/`. Edit the root source, run `cargo xtask sync-plugin-skills`,
-and commit both plugin copies. Use `cargo xtask sync-plugin-skills --check` to
-verify they are current.
+All four directories under this plugin's `skills/` are generated copies of
+the canonical directories under the repository's root `skills/`. Edit the
+root sources, then synchronize the plugin copies:
+
+```bash
+cargo xtask sync-plugin-skills
+cargo xtask sync-plugin-skills --check
+```
+
+Commit the source changes and all generated plugin copies together. The sync
+command updates all managed skills in both plugins; the check reports missing,
+changed, or stale generated files.
 
 ## License
 

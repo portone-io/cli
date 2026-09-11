@@ -1,5 +1,7 @@
 # portone setup
 
+English | [한국어](ko/portone_setup.md)
+
 Install PortOne skills and MCP settings for AI coding agents
 
 ```
