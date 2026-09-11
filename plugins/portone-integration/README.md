@@ -2,139 +2,58 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-A Claude Code plugin for implementing and reviewing PortOne payment
-integrations.
-
-## Features
-
-- Generate PortOne V1 and V2 integration code for supported frontend and
-  backend frameworks.
-- Support one-time payments, billing-key payments, key-in payments, and
-  identity verification.
-- Review existing integrations for security, correctness, and PortOne best
-  practices.
-- Use the PortOne CLI to authenticate, inspect payments, and make API requests
-  with the bundled `portone-cli` skill.
+Implement and review PortOne V1 and V2 integrations in Claude Code.
+Supports one-time payments, billing-key payments, key-in payments, and identity
+verification using official documentation and MCP tools.
 
 ## Installation
 
-### Set up skills and MCP
+Install `portone-integration` through Claude Code's plugin manager using this
+repository's [`portone` marketplace](../../.claude-plugin/marketplace.json).
+Node.js and `npx` are required to run the bundled MCP server.
 
-Install the [PortOne CLI](../../README.md#installation), Node.js, and `npx`,
-then configure Claude Code for your user account:
-
-```bash
-portone setup --agent claude-code --scope user
-```
-
-Setup copies the four official PortOne skills (`portone-cli`, `portone-guide`,
-`payment-code-generator`, and `integration-validator`) and configures the
-PortOne MCP server directly. It does not install the native Claude Code plugin,
-its `/portone-integration:start` command, or its specialized agents. Git and
-the Claude Code CLI are not required to run setup; setup does not install or
-update Claude Code itself.
-
-Update this installation explicitly with:
-
-```bash
-portone setup update --agent claude-code --scope user
-```
-
-The configured MCP server runs `npx -y @portone/mcp-server@latest`. Start a new
-Claude Code session, check the PortOne server with `/mcp`, and ask Claude to
-retrieve a PortOne document. Follow any workspace trust or MCP approval prompts
-from Claude Code. Console features may request login when used; setup does not
-log in or save tokens. See the [setup guide](../../README.md#portone-setup) for
-project scope, destinations, and update behavior.
-
-### Native plugin installation
-
-To use `/portone-integration:start` and the specialized agents, install
-`portone-integration` separately through Claude Code's plugin manager using
-this repository's [`portone` marketplace](../../.claude-plugin/marketplace.json).
-The native plugin bundles its own MCP configuration, commands, agents, and
-the `portone-cli` and `portone-guide` skills. If you switch to direct setup,
-disable an existing plugin when it duplicates the installed skills or server.
+The plugin includes the `/portone-integration:start` command, code generation
+and review agents, and the `portone-cli` and `portone-guide` skills.
 
 ## Usage
 
-### `/start`
-
-With the native plugin installed, generate payment integration code
-interactively:
+Start an integration interactively or specify a version and payment type:
 
 ```text
 /portone-integration:start
-/portone-integration:start v2
 /portone-integration:start v2 checkout
-/portone-integration:start v1 billing
 ```
 
-Payment types:
-
-- `checkout`: one-time payment through a payment provider checkout window.
-- `billing`: recurring or on-demand payments using a billing key.
-- `keyin`: payment using card details entered directly.
-- `identity`: identity verification.
-
-### Review an integration
-
-Ask Claude to review an existing PortOne integration. The native plugin's
-`integration-validator` agent handles requests such as:
+Versions: `v1`, `v2`. Types: `checkout`, `billing`, `keyin`, `identity`.
+You can also ask Claude directly:
 
 ```text
-Review the PortOne integration in src/payment/ for security issues.
-Validate the PortOne API calls in src/api/pay.ts.
-```
-
-Natural language requests work with either direct skill setup or the native
-plugin. The native plugin can also delegate work to its specialized agents:
-
-```text
-Implement PortOne payment support.
-Add a recurring payment integration.
-Review this PortOne integration for security issues.
+Review the PortOne integration in src/payment/.
 Use the PortOne CLI to inspect failed test payments.
 ```
 
-## Maintaining the bundled skills
+## CLI setup
 
-This plugin's `skills/portone-cli/` and `skills/portone-guide/` are generated
-copies of the canonical directories under the repository's root `skills/`.
-Edit the root sources, then synchronize the plugin copies:
+Install the [PortOne CLI](../../README.md#installation), then configure skills
+and MCP settings:
 
-```bash
-cargo xtask sync-plugin-skills
-cargo xtask sync-plugin-skills --check
+```sh
+portone setup --agent claude-code --scope user
+portone setup update --agent claude-code --scope user
 ```
 
-Commit the source changes and all generated plugin copies together. The sync
-command updates all managed skills in both plugins; the check reports missing,
-changed, or stale generated files. This plugin's `commands/` and `agents/` are
-maintained separately and are not generated by this command.
+CLI setup includes four skills for natural language requests. The `/start`
+command and specialized agents require the native plugin.
+Restart Claude Code after setup and check the server with `/mcp`.
+If you switch from the plugin to CLI setup, disable the plugin to avoid duplicates.
+See the [setup guide](../../docs/setup.md) for scopes and installation paths.
 
-## Supported frameworks
+## Contributing
 
-Frontend examples cover React, vanilla HTML/JavaScript, and Vue adaptations.
-Backend examples cover Express, FastAPI, Flask, and Spring with Kotlin.
-
-## Choosing an integration
-
-- Use one-time payments for individual purchases completed in a payment
-  provider checkout window.
-- Use billing-key payments for subscriptions, memberships, and server-initiated
-  charges.
-- Use identity verification for signup, age checks, and similar flows.
-- Prefer V2 for new projects. Use V1 when maintaining an existing V1
-  integration or when a required provider feature is only available in V1.
-
-## Security
-
-- Never expose an API Secret in client code.
-- Verify completed payments on the server.
-- Keep credentials in environment variables and exclude `.env` files from
-  version control.
+Edit `portone-cli` and `portone-guide` under the repository's `skills/` directory,
+then [synchronize the plugin copies](../../docs/development.md).
+The plugin's `commands/` and `agents/` are maintained separately.
 
 ## License
 
-MIT License
+MIT
