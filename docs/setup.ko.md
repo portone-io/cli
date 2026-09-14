@@ -18,8 +18,7 @@ portone setup --agent claude-code,cursor --scope user
 ```
 
 `--agent`는 쉼표로 구분하거나 반복해서 지정할 수 있습니다.
-`--scope`는 `project` 또는 `user`이며, 비대화형 실행에는 두 옵션이 모두 필요합니다.
-이전 옵션인 `--assistant claude|codex|both`는 사용자 범위를 사용합니다.
+`--scope`는 `project` 또는 `user`이며, 비대화형 실행에는 두 옵션이 모두 사용해야 합니다.
 
 ## 설치 위치
 
@@ -41,9 +40,6 @@ portone setup --agent claude-code,cursor --scope user
 `OPENCODE_CONFIG_DIR`과 관계없이 `${XDG_CONFIG_HOME:-~/.config}/opencode`
 아래에 설치합니다. VS Code는 stable 버전의 기본 프로필을 대상으로 합니다.
 
-경로를 공유하는 에이전트에는 사본 하나만 저장합니다. 관리 대상 스킬과
-`portone` MCP 항목을 교체하며, 관련 없는 설정과 지원되는 JSONC/TOML 주석은 보존합니다.
-
 ## 업데이트
 
 ```sh
@@ -56,8 +52,7 @@ portone setup update --dry-run
 
 프로젝트 설치 기록은 `.portone/setup.json`, 사용자 설치 기록은 PortOne 설정
 디렉터리의 `setup.json`에 저장합니다. 사용자 설정 디렉터리는 `PORTONE_CONFIG_DIR`로
-바꿀 수 있습니다. 필터 없이 업데이트하면 두 범위의 설치 기록을 모두 확인합니다.
-업데이트는 직접 실행해야 하며 CLI 업데이트와 별개입니다.
+바꿀 수 있습니다. 필터 없이 업데이트하면 user와 project 범위의 설치 기록을 모두 확인합니다.
 
 스킬과 MCP 파일은 GitHub의 공식 최신 릴리스에 해당하는 커밋 하나에서 가져옵니다.
 최신 릴리스가 없을 때만 기본 브랜치를 사용하며, 릴리스에 스킬 원본이 없으면 실패합니다.

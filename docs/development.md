@@ -20,7 +20,7 @@ cargo test --workspace
 ```
 
 For packaging scripts, install the Node.js version required by the README
-and the pnpm version in `package.json`, then run:
+and the pnpm version specified in `package.json`.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -29,10 +29,7 @@ pnpm typecheck
 pnpm test:scripts
 ```
 
-## Documentation and skills
-
-Edit command help in the CLI source and generate both reference languages.
-Edit canonical skills under `skills/` and synchronize their plugin copies:
+## Generate documentation and skills
 
 ```sh
 cargo xtask gen-docs
@@ -40,7 +37,3 @@ cargo xtask gen-docs --check
 cargo xtask sync-plugin-skills
 cargo xtask sync-plugin-skills --check
 ```
-
-Commit generated files with their source changes; CI checks both.
-Maintain English and Korean guides together. The root READMEs are symlinks
-to `packages/@portone/cli/README*.md`, which are also published on npm.

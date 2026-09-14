@@ -28,7 +28,7 @@ portone payment list --test --status failed
 portone payment view payment-xxx
 ```
 
-Replace `payment-xxx` with a payment ID from your integration.
+Replace `payment-xxx` with the `paymentId` set when making the payment.
 Use `portone <command> --help` for options and examples.
 
 ## Documentation

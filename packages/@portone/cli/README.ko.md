@@ -28,7 +28,7 @@ portone payment list --test --status failed
 portone payment view payment-xxx
 ```
 
-`payment-xxx`를 연동 시 지정한 결제 ID로 바꾸세요.
+`payment-xxx`를 결제 시 설정한 paymentId 로 변경해주세요.
 명령어별 옵션과 예제는 `portone <command> --help`로 확인할 수 있습니다.
 
 ## 문서

@@ -19,7 +19,6 @@ portone setup --agent claude-code,cursor --scope user
 
 `--agent` accepts comma-separated or repeated values. `--scope` is `project`
 or `user`; both options are required for noninteractive setup.
-The legacy `--assistant claude|codex|both` option uses user scope.
 
 ## Destinations
 
@@ -41,10 +40,6 @@ User scope uses each agent's standard configuration directory and honors
 `${XDG_CONFIG_HOME:-~/.config}/opencode` regardless of `OPENCODE_CONFIG` and
 `OPENCODE_CONFIG_DIR`. VS Code targets the stable/default profile.
 
-Agents sharing a destination use one copy. Setup replaces the managed skills
-and `portone` MCP entry while preserving unrelated settings and supported
-JSONC/TOML comments.
-
 ## Update
 
 ```sh
@@ -58,7 +53,7 @@ portone setup update --dry-run
 Updates use installation receipts in `.portone/setup.json` for the current
 project and `setup.json` in the PortOne configuration directory for user scope.
 `PORTONE_CONFIG_DIR` overrides the latter directory. Without filters, updates
-check both scopes. Updates run explicitly and independently of CLI updates.
+check installation receipts for both user and project scopes.
 
 Setup downloads skills and MCP files from one commit in the latest official
 GitHub release. It uses the default branch only when no latest release exists;

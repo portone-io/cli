@@ -15,12 +15,11 @@ portone payment transactions payment-xxx
 portone payment webhook list payment-xxx
 ```
 
-Replace `payment-xxx` with your integration's payment ID. Use `list --search TEXT`
-to search by PortOne or PG transaction ID. `transactions` uses an experimental API.
+Replace `payment-xxx` with the `paymentId` set when making the payment.
+Use `list --search TEXT` to search payments.
 
-By default, `list` returns the newest 30 V2 payments changed within 90 days,
-including test and live payments. It fetches pages automatically up to `--limit`
-(1–60,000). Narrow the results with filters:
+By default, `list` returns the newest 30 payments changed within 90 days.
+Use `--limit` (1–60,000) to specify how many payments to retrieve.
 
 ```sh
 portone payment list --live --status paid,partial-cancelled --currency KRW
@@ -28,7 +27,7 @@ portone payment list --method card --pg tosspayments --version all
 portone payment list --from 2026-09-01T00:00:00+09:00 --until 2026-09-08T00:00:00+09:00
 ```
 
-For scripts, use JSON output and the embedded jq-compatible filter:
+You can use JSON output and jq filters:
 
 ```sh
 portone payment view payment-xxx --json
@@ -36,10 +35,8 @@ portone payment list --json id,status
 portone payment list --json --jq '.[] | .id'
 ```
 
-Lists produce arrays; other results produce objects. JSON preserves API field
-names and values. Empty lists produce `[]` and succeed. Without `--json`, lists
-use tables in a terminal and headerless TSV when piped. Amounts are integers
-in the currency's minor unit.
+Without `--json`, output uses tables in a terminal and headerless TSV when piped.
+Amounts are integers in the currency's minor unit (for example, 1 USD = 100, 1 KRW = 1).
 
 ## Cancellations and webhooks
 
@@ -51,17 +48,14 @@ portone payment webhook resend payment-xxx --webhook-id webhook-xxx
 ```
 
 Cancellation requires a reason and prompts for confirmation. `--yes` skips the
-prompt and is required without a TTY. Omitting `--amount` cancels the remaining
-amount. All amount fields use integer minor currency units.
+prompt and is required in non-interactive environments. Omitting `--amount`
+cancels the remaining amount. All amount fields use integer minor currency units.
 
 Use `--input FILE` or `--input -` for a complete JSON body, including a reason
-and any refund account fields. It cannot be combined with individual cancellation
-field flags. A body `storeId` overrides the default store but must match an
-explicit `--store`.
+and any refund account fields.
 
 `REQUESTED` means the cancellation was accepted; `SUCCEEDED` means it completed.
-Both exit with code 0. `FAILED` exits with code 1. Cancellations are not retried
-automatically.
+Both exit with code 0. `FAILED` exits with code 1.
 
 Webhook resend runs without confirmation and selects the latest webhook when
 `--webhook-id` is omitted. A successful request does not guarantee delivery;
@@ -80,17 +74,15 @@ portone api graphql -f query='query { merchant { ... on Merchant { id plainId } 
 ```
 
 The default method is GET; adding fields or `--input` switches to POST. Pass
-`-X GET` when sending filters to a V2 list endpoint. `-f` sends strings; `-F`
+`-X GET` when sending filters to a list endpoint. `-f` sends strings; `-F`
 converts integers, booleans, and null, and reads files with `@path` or stdin with `@-`.
 
 `--paginate` fetches all pages. Use `--slurp` to collect them in an array, or
-`--jq` to filter them. The embedded jaq engine supports most jq syntax;
-external jq is optional.
+`--jq` to filter them.
 
 `--cache 1h` caches eligible responses for one hour, excluding HTTP 403 and
 5xx responses. The cache defaults to `~/.cache/portone`; override it with
-`PORTONE_CACHE_DIR`. A custom `Authorization` header overrides saved credentials;
-automatic credentials are omitted for full URLs on a different origin.
+`PORTONE_CACHE_DIR`.
 
 See [`portone api`](reference/portone_api.md) for nested fields, request bodies,
 GraphQL variables, and pagination examples.
