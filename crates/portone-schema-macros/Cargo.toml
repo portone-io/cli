@@ -18,5 +18,4 @@ syn = "2.0.119"
 [dev-dependencies]
 clap = { version = "4.6.6", features = ["derive"] }
 serde = { version = "1.0.229", features = ["derive"] }
-syn = { version = "2.0.119", features = ["full"] }
 tempfile = "3.27.0"

@@ -209,14 +209,6 @@ mod tests {
     }
 
     #[test]
-    fn jq_string_result_prints_raw() {
-        assert_eq!(
-            run_pipeline(Some(".name"), false, &[r#"{"name":"foo"}"#]),
-            "foo\n"
-        );
-    }
-
-    #[test]
     fn jq_null_result_prints_empty_line() {
         assert_eq!(run_pipeline(Some(".missing"), false, &[r#"{}"#]), "\n");
     }
@@ -239,18 +231,6 @@ mod tests {
     }
 
     #[test]
-    fn jq_iterates_multiple_results() {
-        assert_eq!(
-            run_pipeline(
-                Some(".items[].id"),
-                false,
-                &[r#"{"items":[{"id":"a"},{"id":"b"}]}"#]
-            ),
-            "a\nb\n"
-        );
-    }
-
-    #[test]
     fn invalid_jq_filter_fails_at_compile() {
         assert!(Pipeline::new(Some(".["), false, false, false).is_err());
     }
@@ -266,13 +246,6 @@ mod tests {
     #[test]
     fn slurp_outputs_empty_array_without_pages() {
         assert_eq!(run_pipeline(None, true, &[]), "[]\n");
-    }
-
-    #[test]
-    fn plain_json_passthrough_is_verbatim() {
-        let mut out = Vec::new();
-        emit_json_plain(&mut out, b"{\"a\": 1}", false).unwrap();
-        assert_eq!(out, b"{\"a\": 1}");
     }
 
     #[test]

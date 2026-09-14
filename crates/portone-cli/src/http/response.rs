@@ -173,17 +173,4 @@ mod tests {
             "HTTP/1.1 200 OK\nX-A: 1\r\nX-B: 2, 3\r\n\r\n"
         );
     }
-
-    #[test]
-    fn cached_roundtrip() {
-        let resp = HttpResponse {
-            status: 201,
-            headers: vec![("content-type".to_string(), "application/json".to_string())],
-            body: b"{}".to_vec(),
-        };
-        let back: HttpResponse = resp.to_cached().into();
-        assert_eq!(back.status, 201);
-        assert!(back.is_json());
-        assert_eq!(back.body, b"{}");
-    }
 }

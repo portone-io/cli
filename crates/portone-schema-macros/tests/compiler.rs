@@ -150,12 +150,14 @@ fn schema_enums_compile_and_schema_edits_invalidate_expansion() {
     let mut declarations =
         String::from("use clap::ValueEnum;\nuse portone_schema_macros::schema_enum;\n");
     let mut checks = String::new();
+    let mut enum_count = 0;
     // Discover types from the input, so additions outside the CLI's current
     // selections are also compiled and checked without a test-side allowlist.
     for (name, definition) in schema["components"]["schemas"].as_object().unwrap() {
         if definition["type"] != "string" || definition.get("enum").is_none() {
             continue;
         }
+        enum_count += 1;
         writeln!(declarations, "schema_enum!(pub {name});").unwrap();
         let expected = serde_json::to_string(&definition["enum"]).unwrap();
         writeln!(
@@ -173,6 +175,10 @@ fn schema_enums_compile_and_schema_edits_invalidate_expansion() {
         )
         .unwrap();
     }
+    assert!(
+        enum_count > 0,
+        "schema must contain at least one string enum"
+    );
     declarations.push_str("schema_enum!(pub Incremental);\n");
     project.source(&format!(r#"{declarations}
 fn main() {{

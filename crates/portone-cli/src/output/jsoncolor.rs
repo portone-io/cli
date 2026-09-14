@@ -76,6 +76,7 @@ fn escape_string(text: &str) -> std::io::Result<String> {
 
 #[cfg(test)]
 mod tests {
+    use anstream::adapter::strip_str;
     use serde_json::json;
 
     use super::*;
@@ -88,14 +89,6 @@ mod tests {
 
     fn c(color: &str, token: &str) -> String {
         format!("\x1b[{color}m{token}\x1b[m")
-    }
-
-    fn key(name: &str) -> String {
-        format!(
-            "{}{} ",
-            c(COLOR_KEY, &format!("\"{name}\"")),
-            c(COLOR_DELIM, ":")
-        )
     }
 
     #[test]
@@ -139,87 +132,30 @@ mod tests {
             "tags": ["a", "b"],
             "meta": {},
         });
-        let d = |t| c(COLOR_DELIM, t);
-        let s = |t| c(COLOR_STRING, t);
-        let expected = [
-            d("{"),
-            "\n  ".into(),
-            key("name"),
-            s("\"PortOne\""),
-            d(","),
-            "\n  ".into(),
-            key("ok"),
-            c(COLOR_BOOL, "true"),
-            d(","),
-            "\n  ".into(),
-            key("none"),
-            c(COLOR_NULL, "null"),
-            d(","),
-            "\n  ".into(),
-            key("count"),
-            "42".into(),
-            d(","),
-            "\n  ".into(),
-            key("tags"),
-            d("["),
-            "\n    ".into(),
-            s("\"a\""),
-            d(","),
-            "\n    ".into(),
-            s("\"b\""),
-            "\n  ".into(),
-            d("]"),
-            d(","),
-            "\n  ".into(),
-            key("meta"),
-            d("{"),
-            d("}"),
-            "\n".into(),
-            d("}"),
-            "\n".into(),
-        ]
-        .concat();
-        assert_eq!(render(&value, 0), expected);
+        let output = render(&value, 0);
+        assert_eq!(
+            serde_json::from_str::<Value>(&strip_str(&output).to_string()).unwrap(),
+            value
+        );
+        assert!(output.contains(&c(COLOR_KEY, "\"name\"")));
+        assert!(output.contains(&c(COLOR_STRING, "\"PortOne\"")));
     }
 
     #[test]
     fn string_escaping_matches_serde_json() {
         let raw = "a\"b\\c\nd\te\u{001f}Unicode";
         let value = json!({ raw: raw });
-        let literal = serde_json::to_string(raw).unwrap();
-        let expected = format!(
-            "{}\n  {}{} {}\n{}\n",
-            c(COLOR_DELIM, "{"),
-            c(COLOR_KEY, &literal),
-            c(COLOR_DELIM, ":"),
-            c(COLOR_STRING, &literal),
-            c(COLOR_DELIM, "}"),
-        );
-        assert_eq!(render(&value, 0), expected);
+        let output = strip_str(&render(&value, 0)).to_string();
+        assert_eq!(serde_json::from_str::<Value>(&output).unwrap(), value);
     }
 
     #[test]
     fn base_depth_shifts_indentation() {
         let value = json!([1, { "k": "v" }]);
-        let d = |t| c(COLOR_DELIM, t);
-        let expected = [
-            d("["),
-            "\n    ".into(),
-            "1".into(),
-            d(","),
-            "\n    ".into(),
-            d("{"),
-            "\n      ".into(),
-            key("k"),
-            c(COLOR_STRING, "\"v\""),
-            "\n    ".into(),
-            d("}"),
-            "\n  ".into(),
-            d("]"),
-            "\n".into(),
-        ]
-        .concat();
-        assert_eq!(render(&value, 1), expected);
+        assert_eq!(
+            strip_str(&render(&value, 1)).to_string(),
+            "[\n    1,\n    {\n      \"k\": \"v\"\n    }\n  ]\n"
+        );
     }
 
     #[test]

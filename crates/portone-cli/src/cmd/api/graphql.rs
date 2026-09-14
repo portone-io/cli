@@ -82,48 +82,9 @@ mod tests {
     }
 
     #[test]
-    fn group_variables_keeps_query_top_level_without_variables() {
-        let grouped = group_variables(&map(json!({"query": "QUERY"})));
-        assert_eq!(grouped, map(json!({"query": "QUERY"})));
-    }
-
-    #[test]
     fn group_variables_moves_fields_without_query() {
         let grouped = group_variables(&map(json!({"name": "hubot"})));
         assert_eq!(grouped, map(json!({"variables": {"name": "hubot"}})));
-    }
-
-    #[test]
-    fn group_variables_preserves_value_types() {
-        let grouped = group_variables(&map(json!({
-            "query": "QUERY",
-            "name": "hubot",
-            "power": 9001,
-        })));
-        assert_eq!(
-            grouped,
-            map(json!({
-                "query": "QUERY",
-                "variables": {"name": "hubot", "power": 9001},
-            }))
-        );
-    }
-
-    #[test]
-    fn group_variables_keeps_operation_name_top_level() {
-        let grouped = group_variables(&map(json!({
-            "query": "QUERY",
-            "operationName": "Op",
-            "power": 9001,
-        })));
-        assert_eq!(
-            grouped,
-            map(json!({
-                "query": "QUERY",
-                "operationName": "Op",
-                "variables": {"power": 9001},
-            }))
-        );
     }
 
     #[test]

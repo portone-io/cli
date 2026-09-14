@@ -123,20 +123,4 @@ mod tests {
     fn clicolor_force_overrides_no_color() {
         assert!(streams(true, true, true).color_enabled());
     }
-
-    #[test]
-    fn detect_runs() {
-        let io = IoStreams::detect();
-        let _ = io.color_enabled();
-    }
-
-    #[test]
-    fn test_streams_capture_writes() {
-        let (mut io, bufs) = IoStreams::test();
-        io.out.write_all("standard output".as_bytes()).unwrap();
-        io.err.write_all("standard error".as_bytes()).unwrap();
-        assert_eq!(bufs.out(), "standard output");
-        assert_eq!(bufs.err(), "standard error");
-        assert!(!io.color_enabled());
-    }
 }

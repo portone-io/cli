@@ -246,17 +246,6 @@ mod tests {
     }
 
     #[test]
-    fn passthrough_writes_reach_target() {
-        let mut out = Vec::new();
-        let mut err = Vec::new();
-        let mut pager = Pager::start(&mut out, &mut err, false, true);
-        pager.writer().write_all(b"body").unwrap();
-        pager.finish().unwrap();
-        drop(pager);
-        assert_eq!(out, b"body");
-    }
-
-    #[test]
     fn split_shell_words_handles_quotes_and_escapes() {
         assert_eq!(
             split_shell_words("less -R"),

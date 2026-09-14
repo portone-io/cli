@@ -513,12 +513,12 @@ fn input_dash_sends_stdin_as_body() {
 }
 
 #[test]
-fn cache_serves_second_request_without_network() {
+fn cache_preserves_status_headers_and_body_without_another_request() {
     let h = Harness::new();
     let body = r#"{"cached":true}"#;
     let mock = h.server.mock(|when, then| {
         when.method(GET).path("/cached");
-        then.status(200)
+        then.status(201)
             .header("content-type", "application/json")
             .body(body);
     });
@@ -527,9 +527,14 @@ fn cache_serves_second_request_without_network() {
         h.api("/cached")
             .arg("--cache")
             .arg("60s")
+            .arg("--include")
             .assert()
             .success()
-            .stdout(predicate::eq(body));
+            .stdout(predicate::str::starts_with("HTTP/1.1 201 Created\n"))
+            .stdout(predicate::str::contains(
+                "Content-Type: application/json\r\n",
+            ))
+            .stdout(predicate::str::ends_with(format!("\r\n\r\n{body}")));
     }
     mock.assert_calls(1);
 }

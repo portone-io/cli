@@ -155,23 +155,6 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn every_named_string_enum_can_generate_valid_rust() {
-        let schema = crate::SCHEMA.as_ref().unwrap();
-        let definitions = schema["components"]["schemas"].as_object().unwrap();
-        let mut count = 0;
-        for (name, definition) in definitions {
-            if definition["type"] != "string" || definition.get("enum").is_none() {
-                continue;
-            }
-            let input = syn::parse_str(&format!("pub {name}")).unwrap();
-            let tokens = generate(schema, &input).unwrap_or_else(|error| panic!("{name}: {error}"));
-            syn::parse2::<syn::File>(tokens).unwrap();
-            count += 1;
-        }
-        assert!(count > 0);
-    }
-
-    #[test]
     fn invalid_definitions_report_the_schema_type() {
         for (definition, expected) in [
             (json!({"type":"object"}), "direct string enum"),

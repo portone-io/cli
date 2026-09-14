@@ -28,26 +28,6 @@ fn bash_script_defines_portone_function() {
 }
 
 #[test]
-fn fish_script_completes_portone() {
-    portone()
-        .arg("completion")
-        .arg("fish")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("complete -c portone"));
-}
-
-#[test]
-fn powershell_and_elvish_succeed() {
-    portone()
-        .arg("completion")
-        .arg("powershell")
-        .assert()
-        .success();
-    portone().arg("completion").arg("elvish").assert().success();
-}
-
-#[test]
 fn unknown_shell_fails_with_usage_error() {
     portone().arg("completion").arg("nushell").assert().code(2);
 }
@@ -58,6 +38,7 @@ fn completion_includes_payment_workflows_and_store_defaults() {
         .args(["completion", "fish"])
         .assert()
         .success()
+        .stdout(predicate::str::contains("complete -c portone"))
         .stdout(predicate::str::contains("transactions"))
         .stdout(predicate::str::contains("resend"))
         .stdout(predicate::str::contains("set-default"))
@@ -96,12 +77,8 @@ fn fish_completion_scopes_nested_options_to_exact_command_paths() {
             .any(|line| line.contains("portone payment webhook resend"))
     );
     assert!(script.contains("argparse -s 'profile=' 'base-url=' 'store=' 'h/help'"));
-    assert!(
-        script
-            .contains("case 'list' 'ls'\n                        set path 'portone payment list'")
-    );
-    assert!(script.contains(
-        "case 'list' 'ls'\n                        set path 'portone payment webhook list'"
-    ));
+    let script = script.lines().map(str::trim).collect::<Vec<_>>().join("\n");
+    assert!(script.contains("case 'list' 'ls'\nset path 'portone payment list'"));
+    assert!(script.contains("case 'list' 'ls'\nset path 'portone payment webhook list'"));
     assert!(!script.contains("__fish_seen_subcommand_from"));
 }

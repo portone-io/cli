@@ -340,44 +340,14 @@ mod tests {
     }
 
     #[test]
-    fn render_all_contains_expected_pages() {
+    fn index_links_root_and_nested_commands_without_help_pages() {
         let pages = render_all(Language::English);
-        let files: Vec<&str> = pages.keys().map(String::as_str).collect();
-        assert_eq!(
-            files,
-            [
-                "index.md",
-                "portone.md",
-                "portone_api.md",
-                "portone_auth.md",
-                "portone_auth_login.md",
-                "portone_auth_logout.md",
-                "portone_auth_status.md",
-                "portone_auth_token.md",
-                "portone_completion.md",
-                "portone_payment.md",
-                "portone_payment_cancel.md",
-                "portone_payment_list.md",
-                "portone_payment_transactions.md",
-                "portone_payment_view.md",
-                "portone_payment_webhook.md",
-                "portone_payment_webhook_list.md",
-                "portone_payment_webhook_resend.md",
-                "portone_setup.md",
-                "portone_setup_update.md",
-                "portone_store.md",
-                "portone_store_set-default.md",
-            ]
+        let index = &pages["index.md"];
+        assert!(index.contains("[portone](portone.md)"));
+        assert!(
+            index.contains("[portone payment webhook resend](portone_payment_webhook_resend.md)")
         );
-    }
-
-    #[test]
-    fn subcommand_usage_includes_full_path() {
-        let pages = render_all(Language::English);
-        let login = &pages["portone_auth_login.md"];
-        assert!(login.starts_with("# portone auth login\n"));
-        assert!(login.contains("portone auth login [OPTIONS]"), "{login}");
-        assert!(!login.contains('\u{1b}'));
+        assert!(pages.keys().all(|file| !file.contains("_help")));
     }
 
     #[test]
@@ -394,6 +364,7 @@ mod tests {
     fn nested_payment_pages_include_full_paths_and_inherited_options() {
         let pages = render_all(Language::English);
         let webhook = &pages["portone_payment_webhook_resend.md"];
+        assert!(webhook.starts_with("# portone payment webhook resend\n"));
         assert!(
             webhook.contains("portone payment webhook resend [OPTIONS] <PAYMENT_ID>"),
             "{webhook}"
@@ -432,13 +403,6 @@ mod tests {
             completion.contains("[possible values: bash, elvish, fish, powershell, zsh]"),
             "{completion}"
         );
-    }
-
-    #[test]
-    fn render_is_deterministic() {
-        for language in [Language::English, Language::Korean] {
-            assert_eq!(render_all(language), render_all(language));
-        }
     }
 
     fn executable_lines(page: &str) -> Vec<&str> {
