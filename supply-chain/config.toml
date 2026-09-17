@@ -62,10 +62,6 @@ criteria = "safe-to-deploy"
 version = "1.9.2"
 criteria = "safe-to-deploy"
 
-[[exemptions.assert_cmd]]
-version = "2.2.2"
-criteria = "safe-to-run"
-
 [[exemptions.async-broadcast]]
 version = "0.7.2"
 criteria = "safe-to-deploy"
@@ -85,10 +81,6 @@ criteria = "safe-to-deploy"
 [[exemptions.async-lock]]
 version = "3.4.2"
 criteria = "safe-to-deploy"
-
-[[exemptions.async-object-pool]]
-version = "0.2.0"
-criteria = "safe-to-run"
 
 [[exemptions.async-process]]
 version = "2.5.0"
@@ -235,10 +227,6 @@ version = "0.9.1"
 criteria = "safe-to-deploy"
 
 [[exemptions.crypto-common]]
-version = "0.1.7"
-criteria = "safe-to-run"
-
-[[exemptions.crypto-common]]
 version = "0.2.2"
 criteria = "safe-to-deploy"
 
@@ -265,10 +253,6 @@ criteria = "safe-to-deploy"
 [[exemptions.derive_more-impl]]
 version = "2.1.1"
 criteria = "safe-to-deploy"
-
-[[exemptions.digest]]
-version = "0.10.7"
-criteria = "safe-to-run"
 
 [[exemptions.digest]]
 version = "0.11.3"
@@ -326,14 +310,6 @@ criteria = "safe-to-deploy"
 version = "1.1.9"
 criteria = "safe-to-deploy"
 
-[[exemptions.float-cmp]]
-version = "0.10.0"
-criteria = "safe-to-run"
-
-[[exemptions.futures-channel]]
-version = "0.3.34"
-criteria = "safe-to-run"
-
 [[exemptions.futures-core]]
 version = "0.3.34"
 criteria = "safe-to-deploy"
@@ -350,17 +326,9 @@ criteria = "safe-to-deploy"
 version = "0.3.34"
 criteria = "safe-to-deploy"
 
-[[exemptions.futures-sink]]
-version = "0.3.34"
-criteria = "safe-to-run"
-
 [[exemptions.futures-task]]
 version = "0.3.34"
 criteria = "safe-to-deploy"
-
-[[exemptions.futures-timer]]
-version = "3.0.4"
-criteria = "safe-to-run"
 
 [[exemptions.futures-util]]
 version = "0.3.34"
@@ -378,21 +346,9 @@ criteria = "safe-to-deploy"
 version = "0.4.3"
 criteria = "safe-to-deploy"
 
-[[exemptions.h2]]
-version = "0.4.18"
-criteria = "safe-to-run"
-
 [[exemptions.hashbrown]]
 version = "0.17.1"
 criteria = "safe-to-deploy"
-
-[[exemptions.headers]]
-version = "0.4.1"
-criteria = "safe-to-run"
-
-[[exemptions.headers-core]]
-version = "0.3.0"
-criteria = "safe-to-run"
 
 [[exemptions.hermit-abi]]
 version = "0.5.3"
@@ -414,21 +370,9 @@ criteria = "safe-to-deploy"
 version = "1.5.0"
 criteria = "safe-to-deploy"
 
-[[exemptions.http-body]]
-version = "1.1.0"
-criteria = "safe-to-run"
-
-[[exemptions.http-body-util]]
-version = "0.1.5"
-criteria = "safe-to-run"
-
 [[exemptions.httparse]]
 version = "1.10.1"
 criteria = "safe-to-deploy"
-
-[[exemptions.httpmock]]
-version = "0.8.3"
-criteria = "safe-to-run"
 
 [[exemptions.humantime]]
 version = "2.4.0"
@@ -437,14 +381,6 @@ criteria = "safe-to-deploy"
 [[exemptions.hybrid-array]]
 version = "0.4.14"
 criteria = "safe-to-deploy"
-
-[[exemptions.hyper]]
-version = "1.11.0"
-criteria = "safe-to-run"
-
-[[exemptions.hyper-util]]
-version = "0.1.20"
-criteria = "safe-to-run"
 
 [[exemptions.i18n-config]]
 version = "0.4.8"
@@ -674,10 +610,6 @@ criteria = "safe-to-deploy"
 version = "0.9.12"
 criteria = "safe-to-deploy"
 
-[[exemptions.path-tree]]
-version = "0.8.3"
-criteria = "safe-to-run"
-
 [[exemptions.pin-project-lite]]
 version = "0.2.17"
 criteria = "safe-to-deploy"
@@ -842,17 +774,9 @@ criteria = "safe-to-deploy"
 version = "1.0.151"
 criteria = "safe-to-deploy"
 
-[[exemptions.serde_regex]]
-version = "1.2.0"
-criteria = "safe-to-run"
-
 [[exemptions.serde_repr]]
 version = "0.1.21"
 criteria = "safe-to-deploy"
-
-[[exemptions.sha1]]
-version = "0.10.7"
-criteria = "safe-to-run"
 
 [[exemptions.sha2]]
 version = "0.11.0"
@@ -886,17 +810,9 @@ criteria = "safe-to-deploy"
 version = "0.4.12"
 criteria = "safe-to-deploy"
 
-[[exemptions.socket2]]
-version = "0.6.5"
-criteria = "safe-to-run"
-
 [[exemptions.stable_deref_trait]]
 version = "1.2.1"
 criteria = "safe-to-deploy"
-
-[[exemptions.stringmetrics]]
-version = "2.2.2"
-criteria = "safe-to-run"
 
 [[exemptions.syn]]
 version = "2.0.119"
@@ -909,10 +825,6 @@ criteria = "safe-to-deploy"
 [[exemptions.sys-locale]]
 version = "0.3.2"
 criteria = "safe-to-deploy"
-
-[[exemptions.tabwriter]]
-version = "1.4.1"
-criteria = "safe-to-run"
 
 [[exemptions.tempfile]]
 version = "3.3.0"
@@ -945,18 +857,6 @@ criteria = "safe-to-deploy"
 [[exemptions.tinystr]]
 version = "0.8.4"
 criteria = "safe-to-deploy"
-
-[[exemptions.tokio]]
-version = "1.53.1"
-criteria = "safe-to-run"
-
-[[exemptions.tokio-macros]]
-version = "2.7.2"
-criteria = "safe-to-run"
-
-[[exemptions.tokio-util]]
-version = "0.7.19"
-criteria = "safe-to-run"
 
 [[exemptions.toml]]
 version = "0.5.11"

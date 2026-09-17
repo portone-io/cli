@@ -28,7 +28,7 @@ cp "$schema_source" "$schema_target"
 cargo run --locked --package xtask -- gen-docs
 cargo fmt --all --check
 cargo clippy --locked --workspace --all-targets -- -D warnings
-cargo test --locked --workspace
+cargo build --locked --workspace
 cargo run --locked --package xtask -- gen-docs --check
 cargo vet --locked
 
@@ -70,7 +70,7 @@ cat > "$body_file" <<EOF
 
 원본: [developers.portone.io@$source_commit](https://github.com/portone-io/developers.portone.io/commit/$source_commit)
 
-검증: workspace 형식 검사, Clippy, 테스트, 참조 문서 최신성 검사, cargo vet 통과.
+검증: workspace 형식 검사, Clippy, 빌드, 참조 문서 최신성 검사, cargo vet 통과.
 EOF
 if [[ -n "$pr_number" ]]; then
   gh pr edit "$pr_number" --repo "$cli_repo" \

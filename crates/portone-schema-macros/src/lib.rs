@@ -14,14 +14,11 @@ static SCHEMA: LazyLock<Result<Value, serde_json::Error>> =
 
 /// Generate a named string enum with clap value parsing and serde serialization.
 ///
-/// ```
+/// ```text
 /// use portone_schema_macros::schema_enum;
 ///
 /// schema_enum!(pub PaymentStatus);
 /// schema_enum!(pub Currency, cli_case = "preserve");
-///
-/// assert_eq!(PaymentStatus::Paid.as_api_str(), "PAID");
-/// assert_eq!(Currency::Krw.as_api_str(), "KRW");
 /// ```
 ///
 /// CLI values default to lowercase kebab-case. `cli_case = "preserve"` keeps

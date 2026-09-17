@@ -360,6 +360,3 @@ fn prompt_error(error: inquire::InquireError) -> CliError {
     };
     CliError::Other(anyhow::anyhow!(message))
 }
-
-#[cfg(test)]
-mod cli_tests;

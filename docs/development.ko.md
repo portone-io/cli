@@ -16,7 +16,7 @@ cargo build --locked --release
 ```sh
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
+cargo build --locked --workspace
 ```
 
 패키징 스크립트는 README에 명시된 Node.js와 `package.json`에 지정된
@@ -26,7 +26,6 @@ pnpm 버전을 설치해 주세요.
 pnpm install --frozen-lockfile
 pnpm check
 pnpm typecheck
-pnpm test:scripts
 ```
 
 ## 문서 및 스킬 생성

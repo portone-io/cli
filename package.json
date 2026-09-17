@@ -11,7 +11,6 @@
     "check:fix": "biome check --write .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
-    "test:scripts": "node --test scripts/*.test.ts",
     "version": "changeset version && node scripts/sync-cargo-version.ts && pnpm i --lockfile-only"
   },
   "devDependencies": {

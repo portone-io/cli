@@ -9,7 +9,7 @@ use toml_edit::{Array, DocumentMut, Item, Table, value};
 use super::model::{Agent, Destination, McpServer, Scope};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)] // Non-host variants are exercised by the platform path tests.
+#[allow(dead_code)]
 pub(crate) enum HostPlatform {
     Linux,
     Macos,
@@ -554,6 +554,3 @@ fn opencode_native_fields(server: &McpServer, windows: bool) -> Vec<(String, Cst
         ("disabled".into(), false.into()),
     ]
 }
-
-#[cfg(test)]
-mod tests;

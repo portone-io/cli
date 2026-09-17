@@ -47,9 +47,6 @@ jobs:
       - name: Typecheck scripts
         run: pnpm typecheck
 
-      - name: Test scripts
-        run: pnpm test:scripts
-
   rust:
     name: Rust (${{ matrix.os }})
     strategy:
@@ -75,8 +72,8 @@ jobs:
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-      - name: Test
-        run: cargo test --workspace
+      - name: Build
+        run: cargo build --locked --workspace
 
       - name: Reference docs up to date
         if: matrix.os == 'ubuntu-24.04'

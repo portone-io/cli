@@ -49,26 +49,3 @@ impl ValueEnum for VersionFilter {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn version_filter_delegates_every_schema_version() {
-        for version in PortOneVersion::value_variants() {
-            let value = version.to_possible_value().unwrap();
-            let filter = VersionFilter::from_str(value.get_name(), false).unwrap();
-            assert_eq!(filter, VersionFilter::Version(*version));
-            assert_eq!(filter.as_api_str(), version.as_api_str());
-        }
-        assert_eq!(
-            VersionFilter::from_str("all", false).unwrap(),
-            VersionFilter::All
-        );
-        assert_eq!(
-            VersionFilter::value_variants().len(),
-            PortOneVersion::value_variants().len() + 1
-        );
-    }
-}

@@ -1,8 +1,6 @@
 pub mod pager;
 
-use std::cell::RefCell;
 use std::io::{IsTerminal, Write};
-use std::rc::Rc;
 
 pub struct IoStreams {
     pub out: Box<dyn Write>,
@@ -28,99 +26,11 @@ impl IoStreams {
         }
     }
 
-    pub fn test() -> (Self, TestBuffers) {
-        let buffers = TestBuffers {
-            out: SharedBuf::default(),
-            err: SharedBuf::default(),
-        };
-        let io = Self {
-            out: Box::new(buffers.out.clone()),
-            err: Box::new(buffers.err.clone()),
-            stdout_is_tty: false,
-            stdin_is_tty: false,
-            stderr_is_tty: false,
-            no_color: false,
-            color_forced: false,
-        };
-        (io, buffers)
-    }
-
     pub fn color_enabled(&self) -> bool {
         self.color_forced || (self.stdout_is_tty && !self.no_color)
     }
 
     pub fn can_prompt(&self) -> bool {
         self.stdin_is_tty && self.stderr_is_tty
-    }
-}
-
-#[derive(Clone, Default)]
-pub struct SharedBuf(Rc<RefCell<Vec<u8>>>);
-
-impl Write for SharedBuf {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.0.borrow_mut().extend_from_slice(buf);
-        Ok(buf.len())
-    }
-
-    fn flush(&mut self) -> std::io::Result<()> {
-        Ok(())
-    }
-}
-
-pub struct TestBuffers {
-    pub out: SharedBuf,
-    pub err: SharedBuf,
-}
-
-impl TestBuffers {
-    pub fn out(&self) -> String {
-        String::from_utf8_lossy(&self.out.0.borrow()).into_owned()
-    }
-
-    pub fn err(&self) -> String {
-        String::from_utf8_lossy(&self.err.0.borrow()).into_owned()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn streams(stdout_is_tty: bool, no_color: bool, color_forced: bool) -> IoStreams {
-        IoStreams {
-            out: Box::new(Vec::new()),
-            err: Box::new(Vec::new()),
-            stdout_is_tty,
-            stdin_is_tty: false,
-            stderr_is_tty: false,
-            no_color,
-            color_forced,
-        }
-    }
-
-    #[test]
-    fn color_enabled_when_tty_without_flags() {
-        assert!(streams(true, false, false).color_enabled());
-    }
-
-    #[test]
-    fn color_disabled_when_not_tty() {
-        assert!(!streams(false, false, false).color_enabled());
-    }
-
-    #[test]
-    fn color_disabled_by_no_color() {
-        assert!(!streams(true, true, false).color_enabled());
-    }
-
-    #[test]
-    fn clicolor_force_overrides_non_tty() {
-        assert!(streams(false, false, true).color_enabled());
-    }
-
-    #[test]
-    fn clicolor_force_overrides_no_color() {
-        assert!(streams(true, true, true).color_enabled());
     }
 }

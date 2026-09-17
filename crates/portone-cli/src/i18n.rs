@@ -52,8 +52,7 @@ impl Language {
     }
 }
 
-/// Inputs are separated from process state so resolution can be tested without
-/// changing the environment of concurrently running tests.
+/// Language resolution inputs independent of process state.
 #[derive(Debug, Default)]
 pub struct LanguagePreferences {
     pub portone_lang: Option<String>,
@@ -187,16 +186,12 @@ impl Localizer {
     }
 }
 
-/// A fixed English context for Display and tests; it never follows or changes
-/// the process's selected language.
 #[doc(hidden)]
 pub fn english() -> &'static Localizer {
     static ENGLISH: OnceLock<Localizer> = OnceLock::new();
     ENGLISH.get_or_init(Localizer::english)
 }
 
-/// Keep message identity through anyhow's error chain until the UI renders it.
-/// This also leaves source errors available for broken-pipe and other checks.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalizedMessage {
     id: &'static str,
@@ -294,6 +289,3 @@ macro_rules! message {
         $crate::i18n::LocalizedMessage::new($id, args, english)
     }};
 }
-
-#[cfg(test)]
-mod tests;

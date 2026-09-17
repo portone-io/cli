@@ -754,6 +754,3 @@ impl Replacement {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests;

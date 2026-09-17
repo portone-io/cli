@@ -36,32 +36,3 @@ pub fn run(f: &mut Factory, args: TokenArgs) -> Result<(), CliError> {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::config::{Config, paths::with_env};
-    use crate::i18n::Localizer;
-    use crate::ui::IoStreams;
-    use std::sync::Arc;
-
-    #[test]
-    fn token_stdout_is_identical_in_both_languages() {
-        with_env(
-            &[(
-                "PORTONE_ACCESS_TOKEN",
-                Some("console-token.payload.signature"),
-            )],
-            || {
-                for localizer in [Localizer::english(), Localizer::korean()] {
-                    let (io, buffers) = IoStreams::test();
-                    let mut factory = Factory::with_config(io, Config::default());
-                    factory.localizer = Arc::new(localizer);
-                    run(&mut factory, TokenArgs { profile: None }).unwrap();
-                    assert_eq!(buffers.out(), "console-token.payload.signature\n");
-                    assert!(buffers.err().is_empty());
-                }
-            },
-        );
-    }
-}

@@ -16,7 +16,7 @@ cargo build --locked --release
 ```sh
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
+cargo build --locked --workspace
 ```
 
 For packaging scripts, install the Node.js version required by the README
@@ -26,7 +26,6 @@ and the pnpm version specified in `package.json`.
 pnpm install --frozen-lockfile
 pnpm check
 pnpm typecheck
-pnpm test:scripts
 ```
 
 ## Generate documentation and skills

@@ -43,9 +43,3 @@ tempfile = "3.27.0"
 unicode-width = "0.2.2"
 ureq = { version = "3.4.0", features = ["json", "platform-verifier"] }
 url = "2.5.8"
-
-[dev-dependencies]
-fluent-syntax = "0.12.0"
-assert_cmd = "2.2.2"
-httpmock = "0.8.3"
-predicates = "3.1.4"
