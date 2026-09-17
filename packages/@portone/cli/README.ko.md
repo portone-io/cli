@@ -25,7 +25,7 @@ PortOne 콘솔에서 로그인한 뒤 결제를 조회합니다.
 ```sh
 portone auth login
 portone payment list --test --status failed
-portone payment view payment-xxx
+portone payment view --payment-id payment-xxx
 ```
 
 `payment-xxx`를 결제 시 설정한 paymentId 로 변경해주세요.

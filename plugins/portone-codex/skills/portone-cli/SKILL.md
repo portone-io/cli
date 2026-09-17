@@ -97,11 +97,11 @@ Use the singular `payment` command for common payment workflows:
 
 ```bash
 portone payment list --test --status failed --limit 20 --json
-portone payment view payment-xxx --json
-portone payment transactions payment-xxx --json
-portone payment webhook list payment-xxx --json
-portone payment cancel payment-xxx --reason 'Customer request' --yes --json
-portone payment webhook resend payment-xxx --webhook-id webhook-xxx --json
+portone payment view --payment-id payment-xxx --json
+portone payment transactions --payment-id payment-xxx --json
+portone payment webhook list --payment-id payment-xxx --json
+portone payment cancel --payment-id payment-xxx --reason 'Customer request' --yes --json
+portone payment webhook resend --payment-id payment-xxx --webhook-id webhook-xxx --json
 ```
 
 The payment ID is the merchant-specified ID, not a PortOne or PG transaction

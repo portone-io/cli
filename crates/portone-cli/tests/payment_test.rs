@@ -55,7 +55,7 @@ impl Harness {
                 "--quiet",
                 "--return",
                 "--command",
-                "exec \"$PORTONE_TEST_BINARY\" payment --base-url \"$PORTONE_TEST_BASE_URL\" cancel p --reason test --amount 1200 --json",
+                "exec \"$PORTONE_TEST_BINARY\" payment --base-url \"$PORTONE_TEST_BASE_URL\" cancel --payment-id p --reason test --amount 1200 --json",
                 "/dev/null",
             ])
             .timeout(std::time::Duration::from_secs(10));
@@ -182,7 +182,7 @@ fn view_encodes_payment_id_and_resolves_explicit_environment_and_profile_stores(
                 .query_param("storeId", expected);
             then.status(200).json_body(payment("order/part?x#y"));
         });
-        let mut command = h.command(&["view", "order/part?x#y", "--json", "id"]);
+        let mut command = h.command(&["view", "--payment-id", "order/part?x#y", "--json", "id"]);
         if let Some(flag) = flag {
             command.args(["--store", flag]);
         }
@@ -199,6 +199,58 @@ fn view_encodes_payment_id_and_resolves_explicit_environment_and_profile_stores(
 }
 
 #[test]
+fn payment_id_option_preserves_special_characters_in_requests() {
+    let h = Harness::new();
+    for id in ["pay-2026_09.001", "-payment_01.02", "--json"] {
+        let mut mock = h.server.mock(|when, then| {
+            when.method(GET).path(format!("/payments/{id}"));
+            then.status(200).json_body(payment(id));
+        });
+        let option = format!("--payment-id={id}");
+        for args in [
+            ["view", "--json", option.as_str()],
+            ["view", option.as_str(), "--json"],
+        ] {
+            let output = h
+                .command(&args)
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            assert_eq!(serde_json::from_slice::<Value>(&output).unwrap()["id"], id);
+        }
+        mock.assert_calls(2);
+        mock.delete();
+    }
+}
+
+#[test]
+fn empty_payment_ids_are_rejected_before_any_request() {
+    let h = Harness::new();
+    let mock = h.server.mock(|when, then| {
+        when.any_request();
+        then.status(200).json_body(json!({}));
+    });
+    for command in [
+        vec!["view"],
+        vec!["transactions"],
+        vec!["cancel", "--reason", "test", "--yes"],
+        vec!["webhook", "list"],
+        vec!["webhook", "resend"],
+    ] {
+        for id in ["", " "] {
+            h.command(&command)
+                .arg(format!("--payment-id={id}"))
+                .assert()
+                .code(1)
+                .stderr(predicate::str::contains("--payment-id must not be empty"));
+        }
+    }
+    mock.assert_calls(0);
+}
+
+#[test]
 fn view_preserves_new_fields_and_integer_precision_and_supports_embedded_jq() {
     let h = Harness::new();
     let mock = h.server.mock(|when, then| {
@@ -206,7 +258,7 @@ fn view_preserves_new_fields_and_integer_precision_and_supports_embedded_jq() {
         then.status(200).body(r#"{"id":"p","status":"PAY_PENDING","amount":{"total":9007199254740993},"futureField":{"ok":true}}"#);
     });
     let output = h
-        .command(&["view", "p", "--json"])
+        .command(&["view", "--payment-id", "p", "--json"])
         .assert()
         .success()
         .get_output()
@@ -219,10 +271,18 @@ fn view_preserves_new_fields_and_integer_precision_and_supports_embedded_jq() {
     );
     assert_eq!(value["status"], "PAY_PENDING");
     assert_eq!(value["futureField"]["ok"], true);
-    h.command(&["view", "p", "--json", "id,status", "--jq", ".id"])
-        .assert()
-        .success()
-        .stdout("p\n");
+    h.command(&[
+        "view",
+        "--payment-id",
+        "p",
+        "--json",
+        "id,status",
+        "--jq",
+        ".id",
+    ])
+    .assert()
+    .success()
+    .stdout("p\n");
     mock.assert_calls(2);
 }
 
@@ -240,13 +300,21 @@ fn attempts_and_webhook_lists_use_the_right_sources() {
         when.method(GET).path("/payments/p").query_param("storeId","s");
         then.status(200).json_body(json!({"id":"p","webhooks":[{"id":"wh","url":"https://merchant.test/hook","status":"FAILED_NOT_OK_RESPONSE","response":{"code":"500","body":"failure"}}]}));
     });
-    h.command(&["transactions", "p", "--store", "s", "--json"])
-        .assert()
-        .success()
-        .stdout("[{\"id\":\"tx\",\"paymentId\":\"p\",\"status\":\"FAILED\"}]\n");
+    h.command(&[
+        "transactions",
+        "--payment-id",
+        "p",
+        "--store",
+        "s",
+        "--json",
+    ])
+    .assert()
+    .success()
+    .stdout("[{\"id\":\"tx\",\"paymentId\":\"p\",\"status\":\"FAILED\"}]\n");
     h.command(&[
         "webhook",
         "list",
+        "--payment-id",
         "p",
         "--store",
         "s",
@@ -268,7 +336,7 @@ fn cancel_requires_confirmation_in_non_tty_and_sends_no_request() {
         then.status(200)
             .json_body(json!({"cancellation":{"id":"c","status":"SUCCEEDED"}}));
     });
-    h.command(&["cancel", "p", "--reason", "test"])
+    h.command(&["cancel", "--payment-id", "p", "--reason", "test"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("--yes"));
@@ -336,7 +404,15 @@ fn full_and_partial_cancel_send_exact_fields_and_surface_async_outcomes() {
             when.method(POST).path("/payments/p/cancel").json_body(body);
             then.status(200).json_body(json!({"cancellation":{"id":"c","status":status,"totalAmount":500,"reason":"test"}}));
         });
-        let mut command = h.command(&["cancel", "p", "--reason", "test", "--yes", "--json"]);
+        let mut command = h.command(&[
+            "cancel",
+            "--payment-id",
+            "p",
+            "--reason",
+            "test",
+            "--yes",
+            "--json",
+        ]);
         if let Some(amount) = amount {
             command.args(["--amount", amount]);
         }
@@ -363,13 +439,22 @@ fn cancellation_input_preserves_refund_fields_and_explicit_store_over_defaults()
         then.status(200)
             .json_body(json!({"cancellation":{"id":"c","status":"REQUESTED"}}));
     });
-    h.command(&["cancel", "p", "--input", "-", "--yes", "--json"])
-        .env("PORTONE_STORE_ID", "environment")
-        .write_stdin(body.to_string())
-        .assert()
-        .success();
     h.command(&[
         "cancel",
+        "--payment-id",
+        "p",
+        "--input",
+        "-",
+        "--yes",
+        "--json",
+    ])
+    .env("PORTONE_STORE_ID", "environment")
+    .write_stdin(body.to_string())
+    .assert()
+    .success();
+    h.command(&[
+        "cancel",
+        "--payment-id",
         "p",
         "--input",
         "-",
@@ -379,7 +464,8 @@ fn cancellation_input_preserves_refund_fields_and_explicit_store_over_defaults()
     ])
     .write_stdin(body.to_string())
     .assert()
-    .failure();
+    .failure()
+    .stderr(predicate::str::contains("--store does not match storeId"));
     mock.assert_calls(1);
 }
 
@@ -398,7 +484,7 @@ fn resend_uses_body_and_reports_delivery_failure_despite_http_success() {
                 json!({"webhook":{"id":"wh","url":"https://merchant.test/hook","status":status}}),
             );
         });
-        let mut command = h.command(&["webhook", "resend", "p", "--json"]);
+        let mut command = h.command(&["webhook", "resend", "--payment-id", "p", "--json"]);
         if let Some(id) = id {
             command.args(["--webhook-id", id]);
         }
@@ -420,26 +506,69 @@ fn validation_errors_do_not_send_mutations() {
         when.method(POST);
         then.status(200).json_body(json!({}));
     });
-    for args in [
-        vec!["cancel", "p", "--reason", "test", "--amount", "0", "--yes"],
-        vec![
-            "cancel",
-            "p",
-            "--reason",
-            "test",
-            "--amount",
-            "9223372036854775808",
-            "--yes",
-        ],
-        vec!["cancel", "p", "--reason", "", "--yes"],
-        vec![
-            "cancel", "p", "--reason", "test", "--yes", "--json", "badField",
-        ],
-        vec![
-            "cancel", "p", "--reason", "test", "--yes", "--json", "--jq", ".[",
-        ],
+    for (args, error) in [
+        (
+            vec![
+                "cancel",
+                "--payment-id",
+                "p",
+                "--reason",
+                "test",
+                "--amount",
+                "0",
+                "--yes",
+            ],
+            "invalid value '0' for '--amount",
+        ),
+        (
+            vec![
+                "cancel",
+                "--payment-id",
+                "p",
+                "--reason",
+                "test",
+                "--amount",
+                "9223372036854775808",
+                "--yes",
+            ],
+            "invalid value '9223372036854775808' for '--amount",
+        ),
+        (
+            vec!["cancel", "--payment-id", "p", "--reason", "", "--yes"],
+            "invalid or missing cancellation field: reason",
+        ),
+        (
+            vec![
+                "cancel",
+                "--payment-id",
+                "p",
+                "--reason",
+                "test",
+                "--yes",
+                "--json",
+                "badField",
+            ],
+            "unknown JSON field 'badField'",
+        ),
+        (
+            vec![
+                "cancel",
+                "--payment-id",
+                "p",
+                "--reason",
+                "test",
+                "--yes",
+                "--json",
+                "--jq",
+                ".[",
+            ],
+            "invalid jq filter",
+        ),
     ] {
-        h.command(&args).assert().failure();
+        h.command(&args)
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(error));
     }
     mock.assert_calls(0);
 }
@@ -452,15 +581,23 @@ fn http_errors_preserve_discriminator_and_pg_diagnostics() {
             when.method(POST).path("/payments/p/cancel");
             then.status(code).json_body(json!({"type":"PG_PROVIDER","message":"cannot cancel","pgCode":"E42","pgMessage":"provider declined"}));
         });
-        h.command(&["cancel", "p", "--reason", "test", "--yes", "--json"])
-            .assert()
-            .failure()
-            .stdout("")
-            .stderr(
-                predicate::str::contains("PG_PROVIDER")
-                    .and(predicate::str::contains("E42"))
-                    .and(predicate::str::contains(code.to_string())),
-            );
+        h.command(&[
+            "cancel",
+            "--payment-id",
+            "p",
+            "--reason",
+            "test",
+            "--yes",
+            "--json",
+        ])
+        .assert()
+        .failure()
+        .stdout("")
+        .stderr(
+            predicate::str::contains("PG_PROVIDER")
+                .and(predicate::str::contains("E42"))
+                .and(predicate::str::contains(code.to_string())),
+        );
         mock.assert_calls(1);
         mock.delete();
     }
@@ -505,7 +642,7 @@ token_type = "Bearer"
             .header("authorization", "Bearer new");
         then.status(200).json_body(payment("p"));
     });
-    h.command(&["view", "p", "--json"])
+    h.command(&["view", "--payment-id", "p", "--json"])
         .env_remove("PORTONE_ACCESS_TOKEN")
         .assert()
         .success();

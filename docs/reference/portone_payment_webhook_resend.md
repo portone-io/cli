@@ -5,19 +5,14 @@ English | [한국어](ko/portone_payment_webhook_resend.md)
 Resend a payment webhook
 
 ```
-portone payment webhook resend [OPTIONS] <PAYMENT_ID>
+portone payment webhook resend [OPTIONS] --payment-id <PAYMENT_ID>
 ```
-
-## Arguments
-
-| Argument | Description |
-| --- | --- |
-| `<PAYMENT_ID>` | Merchant-assigned payment ID |
 
 ## Options
 
 | Option | Description |
 | --- | --- |
+| `--payment-id <PAYMENT_ID>` | Merchant-assigned payment ID |
 | `--webhook-id <WEBHOOK_ID>` | Webhook to resend (default: the most recent webhook) |
 | `--json [<FIELDS>]` | Output JSON, optionally selecting comma-separated fields |
 | `-q, --jq <EXPR>` | Filter JSON output using a jq expression (requires --json) |

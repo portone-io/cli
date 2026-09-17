@@ -10,9 +10,9 @@ for all options.
 
 ```sh
 portone payment list --test --status failed --limit 20
-portone payment view payment-xxx
-portone payment transactions payment-xxx
-portone payment webhook list payment-xxx
+portone payment view --payment-id payment-xxx
+portone payment transactions --payment-id payment-xxx
+portone payment webhook list --payment-id payment-xxx
 ```
 
 Replace `payment-xxx` with the `paymentId` set when making the payment.
@@ -30,7 +30,7 @@ portone payment list --from 2026-09-01T00:00:00+09:00 --until 2026-09-08T00:00:0
 You can use JSON output and jq filters:
 
 ```sh
-portone payment view payment-xxx --json
+portone payment view --payment-id payment-xxx --json
 portone payment list --json id,status
 portone payment list --json --jq '.[] | .id'
 ```
@@ -41,10 +41,10 @@ Amounts are integers in the currency's minor unit (for example, 1 USD = 100, 1 K
 ## Cancellations and webhooks
 
 ```sh
-portone payment cancel payment-xxx --reason 'Customer request'
-portone payment cancel payment-xxx --amount 1000 --reason 'Partial refund' --yes
-portone payment cancel payment-xxx --input cancel.json
-portone payment webhook resend payment-xxx --webhook-id webhook-xxx
+portone payment cancel --payment-id payment-xxx --reason 'Customer request'
+portone payment cancel --payment-id payment-xxx --amount 1000 --reason 'Partial refund' --yes
+portone payment cancel --payment-id payment-xxx --input cancel.json
+portone payment webhook resend --payment-id payment-xxx --webhook-id webhook-xxx
 ```
 
 Cancellation requires a reason and prompts for confirmation. `--yes` skips the
@@ -60,7 +60,7 @@ Both exit with code 0. `FAILED` exits with code 1.
 Webhook resend runs without confirmation and selects the latest webhook when
 `--webhook-id` is omitted. A successful request does not guarantee delivery;
 reported delivery failures exit with code 1. Inspect request and response details
-with `payment webhook list --json`.
+with `payment webhook list --payment-id payment-xxx --json`.
 
 ## API requests
 

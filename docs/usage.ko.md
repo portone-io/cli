@@ -10,9 +10,9 @@
 
 ```sh
 portone payment list --test --status failed --limit 20
-portone payment view payment-xxx
-portone payment transactions payment-xxx
-portone payment webhook list payment-xxx
+portone payment view --payment-id payment-xxx
+portone payment transactions --payment-id payment-xxx
+portone payment webhook list --payment-id payment-xxx
 ```
 
 `payment-xxx`를 결제 시 설정한 paymentId 로 변경해주세요.
@@ -30,7 +30,7 @@ portone payment list --from 2026-09-01T00:00:00+09:00 --until 2026-09-08T00:00:0
 JSON 출력과 jq 필터를 사용할 수 있습니다.
 
 ```sh
-portone payment view payment-xxx --json
+portone payment view --payment-id payment-xxx --json
 portone payment list --json id,status
 portone payment list --json --jq '.[] | .id'
 ```
@@ -41,10 +41,10 @@ portone payment list --json --jq '.[] | .id'
 ## 취소와 웹훅
 
 ```sh
-portone payment cancel payment-xxx --reason 'Customer request'
-portone payment cancel payment-xxx --amount 1000 --reason 'Partial refund' --yes
-portone payment cancel payment-xxx --input cancel.json
-portone payment webhook resend payment-xxx --webhook-id webhook-xxx
+portone payment cancel --payment-id payment-xxx --reason 'Customer request'
+portone payment cancel --payment-id payment-xxx --amount 1000 --reason 'Partial refund' --yes
+portone payment cancel --payment-id payment-xxx --input cancel.json
+portone payment webhook resend --payment-id payment-xxx --webhook-id webhook-xxx
 ```
 
 취소에는 사유가 필요하며 실행 전 확인을 요청합니다. `--yes`는 확인을 생략하며
@@ -59,7 +59,7 @@ JSON 본문을 전달해주세요.
 
 웹훅 재발송은 추가 확인 없이 실행하며, `--webhook-id`를 생략하면 최신 웹훅을 선택합니다.
 요청 성공이 전송 성공을 보장하지는 않으며, 전송 실패가 보고되면 종료 코드 1을 반환합니다.
-요청·응답 세부 내용은 `payment webhook list --json`으로 확인해주세요.
+요청·응답 세부 내용은 `payment webhook list --payment-id payment-xxx --json`으로 확인해주세요.
 
 ## API 요청
 

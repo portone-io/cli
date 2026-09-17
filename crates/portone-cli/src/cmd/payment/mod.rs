@@ -91,7 +91,7 @@ pub enum PaymentCommand {
 
 #[derive(Debug, Args)]
 pub struct TargetArgs {
-    #[arg(value_name = "PAYMENT_ID", help = "Merchant-assigned payment ID")]
+    #[arg(long, value_name = "PAYMENT_ID", help = "Merchant-assigned payment ID")]
     pub payment_id: String,
     #[command(flatten)]
     pub output: ResourceOutput,
@@ -113,7 +113,7 @@ fn view(
     args: TargetArgs,
     transactions: bool,
 ) -> Result<(), CliError> {
-    nonempty(&args.payment_id, "PAYMENT_ID")?;
+    nonempty(&args.payment_id, "--payment-id")?;
     let kind = if transactions {
         ResourceKind::Transaction
     } else {
@@ -184,6 +184,82 @@ mod tests {
         payment: PaymentArgs,
     }
 
+    const TARGET_COMMANDS: &[&[&str]] = &[
+        &["view"],
+        &["transactions"],
+        &["cancel", "--reason", "test"],
+        &["webhook", "list"],
+        &["webhook", "ls"],
+        &["webhook", "resend"],
+    ];
+
+    #[test]
+    fn payment_id_options_preserve_values_and_json_ordering() {
+        for command in TARGET_COMMANDS {
+            for id in [
+                "pay-2026_09.001",
+                "_payment",
+                ".payment",
+                "-payment_01.02",
+                "--json",
+            ] {
+                let equals = format!("--payment-id={id}");
+                let mut forms = vec![vec![equals.as_str()]];
+                if !id.starts_with('-') {
+                    forms.push(vec!["--payment-id", id]);
+                }
+                for form in forms {
+                    for json_first in [true, false] {
+                        let mut args = vec!["payment"];
+                        args.extend_from_slice(command);
+                        if json_first {
+                            args.push("--json");
+                        }
+                        args.extend_from_slice(&form);
+                        if !json_first {
+                            args.push("--json");
+                        }
+                        let cli = TestCli::try_parse_from(&args).unwrap();
+                        let (payment_id, output) = match cli.payment.command {
+                            PaymentCommand::View(args) | PaymentCommand::Transactions(args) => {
+                                (args.payment_id, args.output)
+                            }
+                            PaymentCommand::Cancel(args) => (args.payment_id, args.output),
+                            PaymentCommand::Webhook(args) => match args.command {
+                                webhook::WebhookCommand::List(args) => {
+                                    (args.payment_id, args.output)
+                                }
+                                webhook::WebhookCommand::Resend(args) => {
+                                    (args.payment_id, args.output)
+                                }
+                            },
+                            PaymentCommand::List(_) => panic!("not a target command"),
+                        };
+                        assert_eq!(payment_id, id, "{args:?}");
+                        assert_eq!(output.json.as_deref(), Some(""), "{args:?}");
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn payment_id_is_a_required_option_and_rejects_ambiguous_input() {
+        for command in TARGET_COMMANDS {
+            for suffix in [
+                vec![],
+                vec!["p"],
+                vec!["--payment-id"],
+                vec!["--payment-id", "--json"],
+                vec!["--payment-id=p", "--payment-id=other"],
+                vec!["--payment-id=p", "other"],
+            ] {
+                let args = [vec!["payment"], command.to_vec(), suffix].concat();
+                assert!(TestCli::try_parse_from(&args).is_err(), "{args:?}");
+            }
+        }
+    }
+
     #[test]
     fn store_defaults_ignore_empty_values() {
         assert_eq!(
@@ -208,12 +284,14 @@ mod tests {
                 "profile",
                 "webhook",
                 "list",
+                "--payment-id",
                 "id",
             ],
             vec![
                 "payment",
                 "webhook",
                 "list",
+                "--payment-id",
                 "id",
                 "--store",
                 "store",

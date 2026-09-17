@@ -5,19 +5,14 @@ English | [한국어](ko/portone_payment_transactions.md)
 List payment attempts (unstable API)
 
 ```
-portone payment transactions [OPTIONS] <PAYMENT_ID>
+portone payment transactions [OPTIONS] --payment-id <PAYMENT_ID>
 ```
-
-## Arguments
-
-| Argument | Description |
-| --- | --- |
-| `<PAYMENT_ID>` | Merchant-assigned payment ID |
 
 ## Options
 
 | Option | Description |
 | --- | --- |
+| `--payment-id <PAYMENT_ID>` | Merchant-assigned payment ID |
 | `--json [<FIELDS>]` | Output JSON, optionally selecting comma-separated fields |
 | `-q, --jq <EXPR>` | Filter JSON output using a jq expression (requires --json) |
 | `--profile <NAME>` | Configuration profile to use |

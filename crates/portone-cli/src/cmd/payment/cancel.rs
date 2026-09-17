@@ -13,7 +13,7 @@ use crate::output::resource::{self, ResourceKind, ResourceOutput};
 
 #[derive(Debug, Args)]
 pub struct CancelArgs {
-    #[arg(value_name = "PAYMENT_ID", help = "Merchant-assigned payment ID")]
+    #[arg(long, value_name = "PAYMENT_ID", help = "Merchant-assigned payment ID")]
     pub payment_id: String,
     #[arg(
         long,
@@ -47,7 +47,7 @@ pub struct CancelArgs {
 }
 
 pub fn run(f: &mut Factory, common: &CommonArgs, args: CancelArgs) -> Result<(), CliError> {
-    nonempty(&args.payment_id, "PAYMENT_ID")?;
+    nonempty(&args.payment_id, "--payment-id")?;
     args.output.validate(ResourceKind::Cancellation)?;
     if !args.yes && !f.io.can_prompt() {
         return Err(CliError::Other(anyhow::anyhow!(crate::message!(
@@ -369,6 +369,7 @@ mod tests {
                 TestCli::try_parse_from([
                     "payment",
                     "cancel",
+                    "--payment-id",
                     "id",
                     "--input",
                     "body.json",
@@ -378,11 +379,15 @@ mod tests {
                 .is_err()
             );
         }
-        assert!(TestCli::try_parse_from(["payment", "cancel", "id"]).is_err());
-        assert!(TestCli::try_parse_from(["payment", "cancel", "id", "--input", "-"]).is_ok());
+        assert!(TestCli::try_parse_from(["payment", "cancel", "--payment-id", "id"]).is_err());
+        assert!(
+            TestCli::try_parse_from(["payment", "cancel", "--payment-id", "id", "--input", "-"])
+                .is_ok()
+        );
         let cli = TestCli::try_parse_from([
             "payment",
             "cancel",
+            "--payment-id",
             "id",
             "--reason",
             "test",

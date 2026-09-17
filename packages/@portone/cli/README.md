@@ -25,7 +25,7 @@ Log in through PortOne Console, then inspect payments:
 ```sh
 portone auth login
 portone payment list --test --status failed
-portone payment view payment-xxx
+portone payment view --payment-id payment-xxx
 ```
 
 Replace `payment-xxx` with the `paymentId` set when making the payment.

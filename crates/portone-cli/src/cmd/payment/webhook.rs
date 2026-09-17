@@ -25,7 +25,7 @@ pub enum WebhookCommand {
 
 #[derive(Debug, Args)]
 pub struct ResendArgs {
-    #[arg(value_name = "PAYMENT_ID", help = "Merchant-assigned payment ID")]
+    #[arg(long, value_name = "PAYMENT_ID", help = "Merchant-assigned payment ID")]
     pub payment_id: String,
     #[arg(
         long,
@@ -45,7 +45,7 @@ pub fn run(f: &mut Factory, common: &CommonArgs, args: WebhookArgs) -> Result<()
 }
 
 fn list(f: &mut Factory, common: &CommonArgs, args: TargetArgs) -> Result<(), CliError> {
-    nonempty(&args.payment_id, "PAYMENT_ID")?;
+    nonempty(&args.payment_id, "--payment-id")?;
     args.output.validate(ResourceKind::Webhook)?;
     let store = common.resolve_store(f)?;
     let mut client = Client::new(f, &common.auth())?;
@@ -70,7 +70,7 @@ fn list(f: &mut Factory, common: &CommonArgs, args: TargetArgs) -> Result<(), Cl
 }
 
 fn resend(f: &mut Factory, common: &CommonArgs, args: ResendArgs) -> Result<(), CliError> {
-    nonempty(&args.payment_id, "PAYMENT_ID")?;
+    nonempty(&args.payment_id, "--payment-id")?;
     args.output.validate(ResourceKind::Webhook)?;
     let mut body = json!({});
     if let Some(id) = &args.webhook_id {

@@ -366,9 +366,10 @@ mod tests {
         let webhook = &pages["portone_payment_webhook_resend.md"];
         assert!(webhook.starts_with("# portone payment webhook resend\n"));
         assert!(
-            webhook.contains("portone payment webhook resend [OPTIONS] <PAYMENT_ID>"),
+            webhook.contains("portone payment webhook resend [OPTIONS] --payment-id <PAYMENT_ID>"),
             "{webhook}"
         );
+        assert!(webhook.contains("`--payment-id <PAYMENT_ID>`"));
         assert!(webhook.contains("`--webhook-id <WEBHOOK_ID>`"));
         assert!(webhook.contains("`--store <STORE_ID>`"));
         assert!(webhook.contains("`--profile <NAME>`"));

@@ -5,19 +5,14 @@ English | [한국어](ko/portone_payment_webhook_list.md)
 List webhooks for a payment
 
 ```
-portone payment webhook list [OPTIONS] <PAYMENT_ID>
+portone payment webhook list [OPTIONS] --payment-id <PAYMENT_ID>
 ```
-
-## Arguments
-
-| Argument | Description |
-| --- | --- |
-| `<PAYMENT_ID>` | Merchant-assigned payment ID |
 
 ## Options
 
 | Option | Description |
 | --- | --- |
+| `--payment-id <PAYMENT_ID>` | Merchant-assigned payment ID |
 | `--json [<FIELDS>]` | Output JSON, optionally selecting comma-separated fields |
 | `-q, --jq <EXPR>` | Filter JSON output using a jq expression (requires --json) |
 | `--profile <NAME>` | Configuration profile to use |

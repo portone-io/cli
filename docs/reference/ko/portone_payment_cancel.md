@@ -5,19 +5,14 @@
 결제 취소
 
 ```
-portone payment cancel [OPTIONS] <PAYMENT_ID>
+portone payment cancel [OPTIONS] --payment-id <PAYMENT_ID>
 ```
-
-## 인자
-
-| 인자 | 설명 |
-| --- | --- |
-| `<PAYMENT_ID>` | 고객사가 지정한 결제 ID |
 
 ## 옵션
 
 | 옵션 | 설명 |
 | --- | --- |
+| `--payment-id <PAYMENT_ID>` | 고객사가 지정한 결제 ID |
 | `--reason <REASON>` | 결제 취소 사유 |
 | `--amount <INTEGER>` | 최소 통화 단위의 취소 금액 (기본값: 남은 금액 전체) |
 | `--tax-free-amount <INTEGER>` | 최소 통화 단위의 면세 취소 금액 |

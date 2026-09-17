@@ -5,19 +5,14 @@ English | [한국어](ko/portone_payment_cancel.md)
 Cancel a payment
 
 ```
-portone payment cancel [OPTIONS] <PAYMENT_ID>
+portone payment cancel [OPTIONS] --payment-id <PAYMENT_ID>
 ```
-
-## Arguments
-
-| Argument | Description |
-| --- | --- |
-| `<PAYMENT_ID>` | Merchant-assigned payment ID |
 
 ## Options
 
 | Option | Description |
 | --- | --- |
+| `--payment-id <PAYMENT_ID>` | Merchant-assigned payment ID |
 | `--reason <REASON>` | Reason for cancelling the payment |
 | `--amount <INTEGER>` | Amount to cancel in currency minor units (default: all remaining) |
 | `--tax-free-amount <INTEGER>` | Tax-free cancellation amount in currency minor units |

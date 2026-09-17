@@ -151,6 +151,44 @@ fn payment_help_translates_reused_names_in_their_command_context() {
 }
 
 #[test]
+fn payment_help_documents_payment_id_as_a_required_option_in_both_languages() {
+    for (language, usage_heading, options_heading, arguments_heading) in [
+        ("en", "Usage:", "Options:", "Arguments:"),
+        ("ko", "사용법:", "옵션:", "인자:"),
+    ] {
+        for path in [
+            vec!["payment", "view"],
+            vec!["payment", "transactions"],
+            vec!["payment", "cancel"],
+            vec!["payment", "webhook", "list"],
+            vec!["payment", "webhook", "resend"],
+        ] {
+            let args = [path, vec!["--help"]].concat();
+            let output = help(language, &args);
+            let usage = output
+                .lines()
+                .find(|line| line.starts_with(usage_heading))
+                .unwrap();
+            assert!(
+                usage.contains(" --payment-id <PAYMENT_ID>"),
+                "{language}: {args:?}\n{output}"
+            );
+            let (_, options) = output.split_once(options_heading).unwrap();
+            assert!(
+                options
+                    .lines()
+                    .any(|line| line.trim_start().starts_with("--payment-id <PAYMENT_ID>")),
+                "{language}: {args:?}\n{output}"
+            );
+            assert!(
+                !output.contains(arguments_heading),
+                "{language}: {args:?}\n{output}"
+            );
+        }
+    }
+}
+
+#[test]
 fn nested_payment_help_uses_the_selected_language() {
     for language in ["en", "ko"] {
         let direct = help(language, &["payment", "webhook", "list", "--help"]);
