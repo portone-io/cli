@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ESNext",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "lib": ["ESNext"],
+    "types": ["node"],
     "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "noEmit": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["scripts/**/*.ts", "packages/@portone/cli/scripts/**/*.ts"]
 }

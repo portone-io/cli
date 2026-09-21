@@ -1,47 +1,46 @@
 # PortOne Codex Plugin
 
-포트원(PortOne) 결제 연동 코드 생성 및 검토를 도와주는 Codex 전용 플러그인입니다.
+[English](README.md) | [한국어](README.ko.md)
 
-## 기능
+Implement and review PortOne payment integrations in Codex using official
+documentation, MCP tools, and the PortOne CLI.
 
-- 포트원 V1/V2 결제 연동 코드 생성
-- 기존 연동 코드 검증 및 문제점 진단
-- PortOne 공식 문서와 MCP 예시 기준 가이드 제공
+## Installation
 
-## 필수 조건
+Install `portone-codex` through Codex's plugin manager using this repository's
+[`portone` marketplace](../../.agents/plugins/marketplace.json).
+Node.js and `npx` are required to run the bundled MCP server.
 
-이 플러그인을 사용하려면 `@portone/mcp-server` MCP 서버가 설정되어 있어야 합니다.
+The plugin includes four skills: `portone-cli`, `portone-guide`,
+`payment-code-generator`, and `integration-validator`.
 
-플러그인에 포함된 `.mcp.json` 기본 설정은 다음과 같습니다.
-
-```json
-{
-  "mcpServers": {
-    "portone": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@portone/mcp-server@latest"]
-    }
-  }
-}
-```
-
-## 사용 방법
-
-Codex에서 아래처럼 자연어로 요청하면 됩니다.
+## Usage
 
 ```text
-포트원 V2 일반결제 연동 코드를 구현해줘
-프로젝트의 포트원 연동 코드를 검토해줘
-포트원 빌링키 결제 흐름을 추가해줘
+Implement a PortOne V2 one-time payment integration.
+Review the PortOne integration in this project.
+Use the PortOne CLI to inspect failed test payments.
 ```
 
-## 포함된 스킬
+## CLI setup
 
-- `payment-code-generator`: 신규 PortOne 연동 구현
-- `integration-validator`: 기존 또는 생성된 PortOne 연동 검증
-- `portone-guide`: PortOne 개념, 문서, MCP 활용 가이드
+You can also install the same skills and MCP settings with the
+[PortOne CLI](../../README.md#installation):
 
-## 라이선스
+```sh
+portone setup --agent codex --scope user
+portone setup update --agent codex --scope user
+```
 
-MIT License
+Restart Codex after setup. If you switch from the plugin to CLI setup, disable
+the plugin to avoid duplicate skills and MCP servers.
+See the [setup guide](../../docs/setup.md) for scopes and installation paths.
+
+## Contributing
+
+Edit the canonical skills under the repository's `skills/` directory and
+[synchronize the plugin copies](../../docs/development.md).
+
+## License
+
+MIT

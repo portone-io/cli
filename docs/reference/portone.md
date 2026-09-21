@@ -1,0 +1,20 @@
+# portone
+
+English | [한국어](ko/portone.md)
+
+PortOne CLI
+
+```
+portone <COMMAND>
+```
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [portone api](portone_api.md) | Make an authenticated PortOne V2 API request |
+| [portone auth](portone_auth.md) | Authenticate with PortOne |
+| [portone payment](portone_payment.md) | Inspect and manage payments |
+| [portone store](portone_store.md) | Configure the default store |
+| [portone setup](portone_setup.md) | Install PortOne skills and MCP settings for AI coding agents |
+| [portone completion](portone_completion.md) | Generate shell completion scripts |

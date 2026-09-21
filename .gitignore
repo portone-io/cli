@@ -4,3 +4,12 @@ dist/
 .env
 .env.local
 .DS_Store
+
+
+# Added by cargo
+
+/target
+
+# Binaries copied into platform packages by generate-packages.ts during release
+packages/@portone/cli-*/portone
+packages/@portone/cli-*/portone.exe
