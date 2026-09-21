@@ -199,10 +199,6 @@ help-no-browser = 브라우저를 열지 않고 로그인 URL 출력
 
 help-show-secret = 액세스 토큰을 가리지 않고 표시
 
-help-allow-dirty = 호환성을 위해 유지하는 옵션; 동작에 영향 없음
-
-help-assistant = 기존 선택 옵션 (claude | codex | both); 기본값은 사용자 범위
-
 help-shell = 자동완성 스크립트를 생성할 셸
 
 help-subcommand = 하위 명령어의 도움말 출력
@@ -382,7 +378,7 @@ auth-storage = 저장 위치: { $location }
 auth-login-keyring-timeout = 키링이 30초 이내에 응답하지 않았습니다({ $service }/{ $id }). 키링을 확인한 후 다시 시도하세요
 auth-login-keyring-fallback = portone: 키링을 사용할 수 없어 토큰을 설정 파일에 저장합니다: { $error }
 auth-login-cleanup-failed = portone: 이전 콘솔 로그인 토큰을 삭제하지 못했습니다({ $service }/{ $id }): { $error }
-auth-logout-env-active = portone: { $name } 환경 변수로 인증하고 있습니다. 저장된 인증 정보를 삭제하려면 먼저 이 환경 변수를 해제하세요
+auth-logout-env-active = portone: { $name } 환경 변수로 인증하고 있습니다.
 auth-profile-not-found = '{ $profile }' 프로필이 없습니다
 auth-logout-keyring-delete-failed = 키링({ $service }/{ $id })에서 토큰을 삭제하지 못했습니다
 auth-logout-removed = '{ $profile }' 프로필을 삭제했습니다.
@@ -406,10 +402,9 @@ auth-remaining-minutes = { $minutes }분 남음
 auth-remaining-seconds = { $seconds }초 남음
 
 setup-runtime-required = { $requirement }를 설치하고 PATH에서 실행할 수 있게 한 뒤 setup을 실행하세요. 번들 MCP 서버를 실행하려면 Node.js와 npx가 필요합니다.
-setup-incomplete = 일부 설치 파일을 업데이트하지 못했습니다. 성공한 변경은 유지했습니다. 표시된 오류를 해결하고 명령을 다시 실행하세요.
-setup-mcp-next-steps = 에이전트를 다시 시작하고 MCP 서버 목록에서 PortOne을 확인하세요. setup에서는 MCP 연결을 테스트하지 않았습니다. 콘솔 기능은 사용할 때 로그인을 요청합니다.
+setup-incomplete = 일부 설치 파일을 업데이트하지 못했습니다. 표시된 오류를 해결하고 명령을 다시 실행하세요.
+setup-mcp-next-steps = 에이전트를 다시 시작하고 MCP 서버 목록에서 PortOne을 확인하세요.
 setup-complete = 스킬과 MCP 설정을 설치했습니다.
-setup-unsupported-assistant = 지원하지 않는 어시스턴트: { $assistant }
 setup-prompt-canceled-indicator = <취소됨>
 setup-prompt-not-tty = 입력 장치가 TTY가 아닙니다
 setup-prompt-canceled = 사용자가 작업을 취소했습니다
@@ -517,8 +512,7 @@ help-about-setup-update = 기록된 PortOne 스킬과 MCP 설정 업데이트
 help-setup-agent = 설정할 에이전트 (쉼표로 구분하거나 여러 번 지정)
 help-setup-scope = 설치 범위 (project | user)
 help-setup-dry-run = 파일을 변경하지 않고 업데이트 내용 확인
-setup-options-required = 비대화형 환경에서는 --agent와 --scope가 필요합니다 (기존 --assistant도 사용 가능)
-setup-update-legacy = setup update의 필터는 --agent를 사용하세요. --assistant는 setup에서만 지원합니다
+setup-options-required = 비대화형 환경에서는 --agent와 --scope가 필요합니다
 setup-agent-question = 어떤 에이전트를 설정할까요?
 setup-multiselect-hint = ↑↓로 이동, Space로 선택, Enter로 확인
 setup-agent-required = 에이전트를 하나 이상 선택하세요
@@ -527,7 +521,7 @@ setup-scope-project = 현재 프로젝트
 setup-scope-user = 현재 사용자
 setup-runtime-ready = Node.js와 npx를 사용할 수 있습니다
 setup-downloading = 최신 공식 PortOne 스킬과 MCP 설정을 내려받는 중...
-setup-download-failed = PortOne 설치 파일을 내려받지 못했습니다. 기존 설치는 유지했습니다
+setup-download-failed = PortOne 설치 파일을 내려받지 못했습니다.
 setup-source = 소스: { $reference } ({ $commit })
 setup-state-unchanged = 최신 상태
 setup-state-would-update = 업데이트 예정
@@ -535,5 +529,5 @@ setup-state-updated = 업데이트 완료
 setup-state-failed = 실패
 setup-write-failed = 설치 파일을 업데이트하지 못했습니다: { $detail }
 setup-not-configured = 조건에 맞는 설치 기록이 없습니다. 먼저 portone setup을 실행하세요.
-setup-dry-run-complete = 미리보기를 마쳤습니다. 파일과 설치 기록은 변경하지 않았습니다.
-setup-update-hint = 설치한 스킬과 MCP 설정은 portone setup update로 업데이트하세요. 업데이트는 자동으로 실행되지 않습니다.
+setup-dry-run-complete = 미리보기를 마쳤습니다.
+setup-update-hint = 설치한 스킬과 MCP 설정은 portone setup update로 업데이트하세요.

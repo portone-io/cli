@@ -18,7 +18,7 @@ GraphQL requests. Non-TTY output disables color and paging automatically.
 - Do not look for a `--no-pager` flag; it does not exist and is unnecessary.
 - Set `CLICOLOR_FORCE=1` to force color or `NO_COLOR=1` to disable it.
 - Non-interactive `portone setup` requires at least one `--agent` and an
-  explicit `--scope` unless the legacy `--assistant` option is used.
+  explicit `--scope`.
 - `portone auth login --no-browser` prints a login URL to stderr and waits up to
   five minutes for the OAuth callback. Give that URL to the user so they can
   complete login in a browser.
@@ -30,8 +30,7 @@ server to the selected agents' native configuration files. Select agents with
 comma-separated or repeated `--agent` options. Valid IDs are `claude-code`,
 `codex`, `cursor`, `gemini-cli`, `github-copilot`, `vscode-copilot`, and
 `opencode`; select `--scope project|user`. With a TTY, setup starts with no
-agents selected and offers project scope first. The legacy
-`--assistant claude|codex|both` option selects user scope.
+agents selected and offers project scope first.
 
 Setup preserves unrelated MCP configuration and comments. It replaces the
 managed skill directories and PortOne MCP entry when explicitly run. Node.js

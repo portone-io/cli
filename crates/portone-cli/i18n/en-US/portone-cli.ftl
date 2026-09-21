@@ -199,10 +199,6 @@ help-no-browser = Print the login URL without opening a browser
 
 help-show-secret = Display the access token without masking it
 
-help-allow-dirty = Deprecated compatibility flag; has no effect
-
-help-assistant = Legacy selection (claude | codex | both); defaults to user scope
-
 help-shell = Shell for which to generate a completion script
 
 help-subcommand = Print help for the subcommand(s)
@@ -382,7 +378,7 @@ auth-storage = Storage: { $location }
 auth-login-keyring-timeout = the keyring did not respond within 30 seconds ({ $service }/{ $id }); check the keyring and try again
 auth-login-keyring-fallback = portone: keyring is unavailable; storing tokens in the config file: { $error }
 auth-login-cleanup-failed = portone: failed to delete previous console login tokens ({ $service }/{ $id }): { $error }
-auth-logout-env-active = portone: the { $name } environment variable is being used for authentication; unset it before removing stored credentials
+auth-logout-env-active = portone: the { $name } environment variable is being used for authentication.
 auth-profile-not-found = profile '{ $profile }' does not exist
 auth-logout-keyring-delete-failed = failed to delete tokens from the keyring ({ $service }/{ $id })
 auth-logout-removed = Removed profile '{ $profile }'.
@@ -406,10 +402,9 @@ auth-remaining-minutes = { $minutes }m remaining
 auth-remaining-seconds = { $seconds }s remaining
 
 setup-runtime-required = Install { $requirement } and make it available on PATH before running setup. Node.js and npx are required to run the bundled MCP server.
-setup-incomplete = Some setup files could not be updated. Successful updates were kept; fix the reported errors and rerun the command.
-setup-mcp-next-steps = Restart your agent and check PortOne in its MCP server list. Setup has not tested the MCP connection. Console features request login when used.
+setup-incomplete = Some setup files could not be updated. Fix the reported errors and rerun the command.
+setup-mcp-next-steps = Restart your agent and check PortOne in its MCP server list.
 setup-complete = Skills and MCP configuration installed.
-setup-unsupported-assistant = Unsupported assistant: { $assistant }
 setup-prompt-canceled-indicator = <canceled>
 setup-prompt-not-tty = The input device is not a TTY
 setup-prompt-canceled = Operation was canceled by the user
@@ -517,8 +512,7 @@ help-about-setup-update = Update recorded PortOne skills and MCP settings
 help-setup-agent = Agents to configure (comma-separated or repeated)
 help-setup-scope = Installation scope (project | user)
 help-setup-dry-run = Preview updates without writing files
-setup-options-required = --agent and --scope are required in non-interactive environments (or use legacy --assistant)
-setup-update-legacy = Use --agent to filter setup update; --assistant is only supported by setup
+setup-options-required = --agent and --scope are required in non-interactive environments
 setup-agent-question = Which agents would you like to configure?
 setup-multiselect-hint = ↑↓ to move, space to toggle, enter to confirm
 setup-agent-required = Select at least one agent
@@ -527,7 +521,7 @@ setup-scope-project = Current project
 setup-scope-user = Current user
 setup-runtime-ready = Node.js and npx are available
 setup-downloading = Downloading the latest official PortOne skills and MCP configuration...
-setup-download-failed = Unable to download PortOne setup files; existing installations were preserved
+setup-download-failed = Unable to download PortOne setup files.
 setup-source = Source: { $reference } ({ $commit })
 setup-state-unchanged = Up to date
 setup-state-would-update = Would update
@@ -535,5 +529,5 @@ setup-state-updated = Updated
 setup-state-failed = Failed
 setup-write-failed = Unable to update setup files: { $detail }
 setup-not-configured = No recorded installations match. Run portone setup first.
-setup-dry-run-complete = Preview complete. No files or installation records were changed.
-setup-update-hint = Run portone setup update to update installed skills and MCP settings. Updates do not run automatically.
+setup-dry-run-complete = Preview complete.
+setup-update-hint = Run portone setup update to update installed skills and MCP settings.

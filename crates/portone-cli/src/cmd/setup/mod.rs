@@ -41,22 +41,6 @@ pub struct SetupArgs {
         help = "Installation scope (project | user)"
     )]
     pub scope: Option<Scope>,
-
-    #[arg(
-        long,
-        value_delimiter = ',',
-        conflicts_with = "agent",
-        value_name = "ASSISTANT",
-        help = "Legacy selection (claude | codex | both); defaults to user scope"
-    )]
-    pub assistant: Vec<String>,
-
-    #[arg(
-        long,
-        hide = true,
-        help = "Deprecated compatibility flag; has no effect"
-    )]
-    pub allow_dirty: bool,
 }
 
 #[derive(Debug, Subcommand)]
@@ -138,40 +122,21 @@ fn resolve_request(
         args.command,
         Some(SetupCommand::Update(UpdateArgs { dry_run: true }))
     );
-    let legacy = !args.assistant.is_empty();
-    if update && legacy {
-        return Err(CliError::Flag(crate::tr!(localizer, "setup-update-legacy")));
-    }
-    let mut agents = args.agent;
-    for value in &args.assistant {
-        match value.as_str() {
-            "claude" => agents.push(Agent::ClaudeCode),
-            "codex" => agents.push(Agent::Codex),
-            "both" => agents.extend([Agent::ClaudeCode, Agent::Codex]),
-            _ => {
-                return Err(CliError::Flag(crate::tr!(
-                    localizer,
-                    "setup-unsupported-assistant",
-                    assistant = value.as_str()
-                )));
-            }
+    let mut agents = Vec::new();
+    for agent in args.agent {
+        if !agents.contains(&agent) {
+            agents.push(agent);
         }
     }
-    let mut unique = Vec::new();
-    for agent in agents {
-        if !unique.contains(&agent) {
-            unique.push(agent);
-        }
-    }
-    let mut scope = args.scope.or(if legacy { Some(Scope::User) } else { None });
+    let mut scope = args.scope;
     if !update {
-        if !interactive && (unique.is_empty() || scope.is_none()) {
+        if !interactive && (agents.is_empty() || scope.is_none()) {
             return Err(CliError::Flag(crate::tr!(
                 localizer,
                 "setup-options-required"
             )));
         }
-        if unique.is_empty() {
+        if agents.is_empty() {
             let question = crate::tr!(localizer, "setup-agent-question");
             let hint = crate::tr!(localizer, "setup-multiselect-hint");
             let canceled = crate::tr!(localizer, "setup-prompt-canceled-indicator");
@@ -186,7 +151,7 @@ fn resolve_request(
                     })
                 });
             prompt.render_config.canceled_prompt_indicator.content = &canceled;
-            unique = prompt.prompt().map_err(prompt_error)?;
+            agents = prompt.prompt().map_err(prompt_error)?;
         }
         if scope.is_none() {
             let question = crate::tr!(localizer, "setup-scope-question");
@@ -203,7 +168,7 @@ fn resolve_request(
         }
     }
     Ok(Request {
-        agents: unique,
+        agents,
         scope,
         update,
         dry_run,

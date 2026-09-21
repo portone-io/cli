@@ -20,7 +20,6 @@ portone setup [OPTIONS] [COMMAND]
 | --- | --- |
 | `--agent <AGENT>` | 설정할 에이전트 (쉼표로 구분하거나 여러 번 지정) [가능한 값: claude-code, codex, cursor, gemini-cli, github-copilot, vscode-copilot, opencode] |
 | `--scope <SCOPE>` | 설치 범위 (project \| user) [가능한 값: project, user] |
-| `--assistant <ASSISTANT>` | 기존 선택 옵션 (claude \| codex \| both); 기본값은 사용자 범위 |
 
 ## 참고
 
