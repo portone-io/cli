@@ -7,7 +7,7 @@ use anyhow::{Context, Result, bail, ensure};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use super::adapters::render_mcp;
+use super::adapters::{render_mcp, validate_destination};
 use super::model::{Agent, Bundle, Destination, REPOSITORY, SKILL_NAMES, Scope};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -495,52 +495,6 @@ fn validate_relative(path: &Path) -> Result<()> {
         !path.to_string_lossy().contains('\\'),
         "Unsafe path separator"
     );
-    Ok(())
-}
-
-fn validate_destination(target: &Destination, scope: Scope) -> Result<()> {
-    // Project paths are fixed; user paths can have environment-selected roots but
-    // must still address the native host's skill directory and configuration file.
-    let (skills, mcp) = match target.agent {
-        Agent::ClaudeCode => (".claude/skills", ".mcp.json"),
-        Agent::Codex => (".agents/skills", ".codex/config.toml"),
-        Agent::Cursor => (".agents/skills", ".cursor/mcp.json"),
-        Agent::GeminiCli => (".agents/skills", ".gemini/settings.json"),
-        Agent::GithubCopilot => (".agents/skills", ".mcp.json"),
-        Agent::VscodeCopilot => (".agents/skills", ".vscode/mcp.json"),
-        Agent::Opencode => (".agents/skills", "opencode.jsonc"),
-    };
-    if scope == Scope::Project {
-        ensure!(
-            target.skills_dir == Path::new(skills),
-            "Unexpected project skill destination"
-        );
-        ensure!(
-            target.mcp_path == Path::new(mcp)
-                || (target.agent == Agent::Opencode
-                    && target.mcp_path == Path::new("opencode.json")),
-            "Unexpected project MCP destination"
-        );
-    } else {
-        let file = match target.agent {
-            Agent::ClaudeCode => ".claude.json",
-            Agent::Codex => "config.toml",
-            Agent::Cursor | Agent::VscodeCopilot => "mcp.json",
-            Agent::GeminiCli => "settings.json",
-            Agent::GithubCopilot => "mcp-config.json",
-            Agent::Opencode => "opencode.jsonc",
-        };
-        ensure!(
-            target.skills_dir.ends_with("skills"),
-            "Unexpected user skill destination"
-        );
-        ensure!(
-            target.mcp_path.file_name().is_some_and(|name| name == file
-                || (target.agent == Agent::Opencode
-                    && (name == "opencode.json" || name == "config.json"))),
-            "Unexpected user MCP destination"
-        );
-    }
     Ok(())
 }
 
