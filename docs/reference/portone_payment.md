@@ -14,7 +14,6 @@ portone payment [OPTIONS] <COMMAND>
 | --- | --- |
 | [portone payment list](portone_payment_list.md) | List recent payments |
 | [portone payment view](portone_payment_view.md) | View a payment |
-| [portone payment transactions](portone_payment_transactions.md) | List payment attempts (unstable API) |
 | [portone payment cancel](portone_payment_cancel.md) | Cancel a payment |
 | [portone payment webhook](portone_payment_webhook.md) | Inspect and resend payment webhooks |
 

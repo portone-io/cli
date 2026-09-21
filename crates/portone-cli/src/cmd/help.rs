@@ -64,7 +64,6 @@ fn about(path: &str, localizer: &Localizer) -> Option<String> {
         "portone payment" => crate::tr!(localizer, "help-about-payment"),
         "portone payment list" => crate::tr!(localizer, "help-about-payment-list"),
         "portone payment view" => crate::tr!(localizer, "help-about-payment-view"),
-        "portone payment transactions" => crate::tr!(localizer, "help-about-payment-transactions"),
         "portone payment cancel" => crate::tr!(localizer, "help-about-payment-cancel"),
         "portone payment webhook" => crate::tr!(localizer, "help-about-payment-webhook"),
         "portone payment webhook list" => crate::tr!(localizer, "help-about-payment-webhook-list"),

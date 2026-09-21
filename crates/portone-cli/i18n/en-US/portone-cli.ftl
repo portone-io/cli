@@ -100,7 +100,6 @@ help-about-help = Print this message or the help of the given subcommand(s)
 help-about-payment = Inspect and manage payments
 help-about-payment-list = List recent payments
 help-about-payment-view = View a payment
-help-about-payment-transactions = List payment attempts (unstable API)
 help-about-payment-cancel = Cancel a payment
 help-about-payment-webhook = Inspect and resend payment webhooks
 help-about-payment-webhook-list = List webhooks for a payment

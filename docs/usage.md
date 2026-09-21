@@ -11,7 +11,6 @@ for all options.
 ```sh
 portone payment list --test --status failed --limit 20
 portone payment view --payment-id payment-xxx
-portone payment transactions --payment-id payment-xxx
 portone payment webhook list --payment-id payment-xxx
 ```
 

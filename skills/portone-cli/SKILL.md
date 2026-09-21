@@ -97,7 +97,6 @@ Use the singular `payment` command for common payment workflows:
 ```bash
 portone payment list --test --status failed --limit 20 --json
 portone payment view --payment-id payment-xxx --json
-portone payment transactions --payment-id payment-xxx --json
 portone payment webhook list --payment-id payment-xxx --json
 portone payment cancel --payment-id payment-xxx --reason 'Customer request' --yes --json
 portone payment webhook resend --payment-id payment-xxx --webhook-id webhook-xxx --json

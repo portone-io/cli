@@ -13,7 +13,6 @@
 - [portone payment](portone_payment.md)
 - [portone payment cancel](portone_payment_cancel.md)
 - [portone payment list](portone_payment_list.md)
-- [portone payment transactions](portone_payment_transactions.md)
 - [portone payment view](portone_payment_view.md)
 - [portone payment webhook](portone_payment_webhook.md)
 - [portone payment webhook list](portone_payment_webhook_list.md)

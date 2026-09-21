@@ -14,7 +14,6 @@ portone payment [OPTIONS] <COMMAND>
 | --- | --- |
 | [portone payment list](portone_payment_list.md) | 최근 결제 목록 조회 |
 | [portone payment view](portone_payment_view.md) | 결제 상세 조회 |
-| [portone payment transactions](portone_payment_transactions.md) | 결제 시도 내역 조회 (불안정 API) |
 | [portone payment cancel](portone_payment_cancel.md) | 결제 취소 |
 | [portone payment webhook](portone_payment_webhook.md) | 결제 웹훅 조회 및 재발송 |
 

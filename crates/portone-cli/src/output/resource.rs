@@ -27,7 +27,6 @@ pub struct ResourceOutput {
 #[derive(Debug, Clone, Copy)]
 pub enum ResourceKind {
     Payment,
-    Transaction,
     Cancellation,
     Webhook,
 }
@@ -36,7 +35,6 @@ impl ResourceKind {
     fn fields(self) -> &'static [&'static str] {
         match self {
             Self::Payment => PAYMENT_FIELDS,
-            Self::Transaction => TRANSACTION_FIELDS,
             Self::Cancellation => CANCELLATION_FIELDS,
             Self::Webhook => WEBHOOK_FIELDS,
         }
@@ -79,44 +77,6 @@ const PAYMENT_FIELDS: &[&str] = &[
     "statusChangedAt",
     "storeId",
     "transactionId",
-    "updatedAt",
-    "version",
-    "webhooks",
-];
-const TRANSACTION_FIELDS: &[&str] = &[
-    "amount",
-    "billingKey",
-    "cancellations",
-    "cancelledAt",
-    "cashReceipt",
-    "cashReceiptIssuanceStatus",
-    "channel",
-    "channelGroup",
-    "country",
-    "currency",
-    "customData",
-    "customer",
-    "escrow",
-    "failedAt",
-    "failure",
-    "id",
-    "isCulturalExpense",
-    "merchantId",
-    "method",
-    "orderName",
-    "paidAt",
-    "paymentId",
-    "pgResponse",
-    "pgTxId",
-    "productCount",
-    "products",
-    "promotionId",
-    "receiptUrl",
-    "requestedAt",
-    "scheduleId",
-    "status",
-    "statusChangedAt",
-    "storeId",
     "updatedAt",
     "version",
     "webhooks",
@@ -280,9 +240,7 @@ fn render(
         return table(out, &headers, &rows, tty, color);
     }
     match kind {
-        ResourceKind::Payment | ResourceKind::Transaction => {
-            payment_detail(out, localizer, data, color)
-        }
+        ResourceKind::Payment => payment_detail(out, localizer, data, color),
         ResourceKind::Cancellation => {
             property(
                 out,
@@ -347,14 +305,6 @@ fn table_data(
             crate::tr!(localizer, "resource-label-order"),
             time,
         ],
-        ResourceKind::Transaction => vec![
-            id,
-            status_label,
-            amount_label,
-            crate::tr!(localizer, "resource-label-pg-tx"),
-            crate::tr!(localizer, "resource-label-failure"),
-            time,
-        ],
         ResourceKind::Cancellation => vec![
             id,
             status_label,
@@ -386,14 +336,6 @@ fn table_data(
                     amount(v),
                     text(v, "/channel/type"),
                     text(v, "/orderName"),
-                    text(v, "/statusChangedAt"),
-                ],
-                ResourceKind::Transaction => vec![
-                    text(v, "/id"),
-                    state,
-                    amount(v),
-                    text(v, "/pgTxId"),
-                    text(v, "/failure/reason"),
                     text(v, "/statusChangedAt"),
                 ],
                 ResourceKind::Cancellation => vec![

@@ -100,7 +100,6 @@ help-about-help = 이 메시지 또는 지정한 하위 명령어의 도움말 �
 help-about-payment = 결제 조회 및 관리
 help-about-payment-list = 최근 결제 목록 조회
 help-about-payment-view = 결제 상세 조회
-help-about-payment-transactions = 결제 시도 내역 조회 (불안정 API)
 help-about-payment-cancel = 결제 취소
 help-about-payment-webhook = 결제 웹훅 조회 및 재발송
 help-about-payment-webhook-list = 결제 웹훅 목록 조회

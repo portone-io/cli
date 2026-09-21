@@ -81,8 +81,6 @@ pub enum PaymentCommand {
     List(list::ListArgs),
     #[command(about = "View a payment")]
     View(TargetArgs),
-    #[command(about = "List payment attempts (unstable API)")]
-    Transactions(TargetArgs),
     #[command(about = "Cancel a payment")]
     Cancel(cancel::CancelArgs),
     #[command(about = "Inspect and resend payment webhooks")]
@@ -100,45 +98,25 @@ pub struct TargetArgs {
 pub fn run(f: &mut Factory, args: PaymentArgs) -> Result<(), CliError> {
     match args.command {
         PaymentCommand::List(target) => list::run(f, &args.common, target),
-        PaymentCommand::View(target) => view(f, &args.common, target, false),
-        PaymentCommand::Transactions(target) => view(f, &args.common, target, true),
+        PaymentCommand::View(target) => view(f, &args.common, target),
         PaymentCommand::Cancel(target) => cancel::run(f, &args.common, target),
         PaymentCommand::Webhook(target) => webhook::run(f, &args.common, target),
     }
 }
 
-fn view(
-    f: &mut Factory,
-    common: &CommonArgs,
-    args: TargetArgs,
-    transactions: bool,
-) -> Result<(), CliError> {
+fn view(f: &mut Factory, common: &CommonArgs, args: TargetArgs) -> Result<(), CliError> {
     nonempty(&args.payment_id, "--payment-id")?;
-    let kind = if transactions {
-        ResourceKind::Transaction
-    } else {
-        ResourceKind::Payment
-    };
-    args.output.validate(kind)?;
+    args.output.validate(ResourceKind::Payment)?;
     let store = common.resolve_store(f)?;
     let mut client = Client::new(f, &common.auth())?;
-    let mut path = vec!["payments", args.payment_id.as_str()];
-    if transactions {
-        path.push("transactions");
-    }
     let result = client.request(
         &mut *f.io.err,
         "GET",
-        &path,
+        &["payments", &args.payment_id],
         &store_query(store.as_deref()),
         None,
     )?;
-    let data = if transactions {
-        array_member(&result, "items")?
-    } else {
-        &result
-    };
-    resource::write(f, &args.output, kind, data)
+    resource::write(f, &args.output, ResourceKind::Payment, &result)
 }
 
 fn store_query(store: Option<&str>) -> Vec<(&str, &str)> {
