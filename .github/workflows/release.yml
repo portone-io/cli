@@ -254,14 +254,16 @@ jobs:
         with:
           pattern: cli-*
           merge-multiple: true
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@903f9c1a6ebcba6cf41d87230be49611ac97822e
+
       - name: Install Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@903f9c1a6ebcba6cf41d87230be49611ac97822e
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -296,7 +298,7 @@ jobs:
           if-no-files-found: error
 
   publish-cli:
-    name: Publish CLI
+    name: Stage CLI
     runs-on: ubuntu-24.04
     needs:
       - build-binaries
@@ -306,7 +308,7 @@ jobs:
     environment: npm-publish
     permissions:
       contents: write # Required to create the GitHub release and tag.
-      id-token: write # Required for npm provenance during publish.
+      id-token: write # Required for npm trusted publishing and provenance.
     steps:
       - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -332,18 +334,19 @@ jobs:
           name: release-notes
           path: .
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@903f9c1a6ebcba6cf41d87230be49611ac97822e
+
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      # Publish platform packages first and @portone/cli last so its optional
-      # dependencies already exist when users install it.
-      - name: Publish npm packages as latest
-        # Bootstrap only: remove this env block after configuring npm trusted publishers for all packages.
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Stage every package with OIDC. Maintainers must approve all platform
+      # packages before @portone/cli so its optional dependencies are available.
+      - name: Stage npm packages as latest
         run: |
           shopt -s nullglob
           platform_packages=(./npm-packages/portone-cli-[a-z]*.tgz)
@@ -353,8 +356,15 @@ jobs:
             exit 1
           fi
           for package in "${platform_packages[@]}" "${main_package[@]}"; do
-            npm publish "$package" --tag latest --access public --provenance
+            pnpm exec npm stage publish "$package" --tag latest --access public --provenance
           done
+
+          {
+            echo '### npm packages staged for approval'
+            echo
+            echo 'Review the staged packages on npmjs.com or with `npm stage list` and `npm stage view <stage-id>`.'
+            echo 'Approve all platform packages first, then `@portone/cli`, using `npm stage approve <stage-id>` (2FA required).'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create GitHub @portone/cli release and tag
         run: |
@@ -385,5 +395,5 @@ jobs:
             exit 0
           fi
           curl -X POST -H 'Content-type: application/json'\
-            --data '{"blocks":[{"type":"section","text":{"type":"mrkdwn","text":"`@portone/cli` version *v'"$VERSION"'* has been published to npm :rocket:\ncc @dx-engineers"}},{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"View on npm"},"value":"show_npm_page","url":"https://www.npmjs.com/package/@portone/cli/v/'"$VERSION"'","action_id":"show_npm_page"},{"type":"button","text":{"type":"plain_text","text":"View changelog"},"value":"show_changelog","url":"https://github.com/portone-io/portone-cli/blob/main/packages/@portone/cli/CHANGELOG.md","action_id":"show_changelog"}]}]}'\
+            --data '{"blocks":[{"type":"section","text":{"type":"mrkdwn","text":"`@portone/cli` version *v'"$VERSION"'* and all platform packages have been staged on npm and are awaiting approval. Approve the platform packages first, then `@portone/cli`.\ncc @dx-engineers"}},{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"View on npm"},"value":"show_npm_page","url":"https://www.npmjs.com/package/@portone/cli","action_id":"show_npm_page"},{"type":"button","text":{"type":"plain_text","text":"View changelog"},"value":"show_changelog","url":"https://github.com/portone-io/cli/blob/main/packages/@portone/cli/CHANGELOG.md","action_id":"show_changelog"}]}]}'\
             "$SLACK_WEBHOOK_URL"

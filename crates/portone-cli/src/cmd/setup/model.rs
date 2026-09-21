@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 
-pub const REPOSITORY: &str = "portone-io/portone-cli";
+pub const REPOSITORY: &str = "portone-io/cli";
 pub const SKILL_NAMES: [&str; 4] = [
     "portone-cli",
     "portone-guide",

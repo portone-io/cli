@@ -7,7 +7,7 @@ members = ["crates/portone-cli", "crates/portone-schema-macros", "crates/xtask"]
 version = "0.2.0"
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/portone-io/portone-cli"
+repository = "https://github.com/portone-io/cli"
 authors = ["portone-dx <support@portone.io>"]
 
 [profile.release]

@@ -8,12 +8,12 @@
   "homepage": "https://portone.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/portone-io/portone-cli.git",
+    "url": "git+https://github.com/portone-io/cli.git",
     "directory": "packages/@portone/cli"
   },
   "author": "portone-dx <support@portone.io>",
   "license": "MIT",
-  "bugs": "https://github.com/portone-io/portone-cli/issues",
+  "bugs": "https://github.com/portone-io/cli/issues",
   "description": "PortOne 결제/본인인증 연동을 위한 CLI 도구",
   "files": [
     "bin/portone.js",

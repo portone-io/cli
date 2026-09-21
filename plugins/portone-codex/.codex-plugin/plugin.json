@@ -7,8 +7,8 @@
     "email": "cirnov59@gmail.com",
     "url": "https://github.com/cirnov"
   },
-  "homepage": "https://github.com/portone-io/portone-cli",
-  "repository": "https://github.com/portone-io/portone-cli",
+  "homepage": "https://github.com/portone-io/cli",
+  "repository": "https://github.com/portone-io/cli",
   "license": "MIT",
   "keywords": [
     "portone",

@@ -5,7 +5,7 @@ set -euo pipefail
 
 schema_source=${1:?usage: sync-openapi.sh SOURCE_JSON SOURCE_COMMIT}
 source_commit=${2:?usage: sync-openapi.sh SOURCE_JSON SOURCE_COMMIT}
-cli_repo=${CLI_REPO:-portone-io/portone-cli}
+cli_repo=${CLI_REPO:-portone-io/cli}
 sync_branch=chore/openapi
 schema_target=crates/portone-schema-macros/schema/v2.openapi.json
 
