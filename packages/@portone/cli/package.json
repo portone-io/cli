@@ -1,6 +1,6 @@
 {
   "name": "@portone/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "bin": {
     "portone": "bin/portone.js"
@@ -14,7 +14,7 @@
   "author": "portone-dx <support@portone.io>",
   "license": "MIT",
   "bugs": "https://github.com/portone-io/portone-cli/issues",
-  "description": "PortOne \uacb0\uc81c/\ubcf8\uc778\uc778\uc99d \uc5f0\ub3d9\uc744 \uc704\ud55c CLI \ub3c4\uad6c",
+  "description": "PortOne 결제/본인인증 연동을 위한 CLI 도구",
   "files": [
     "bin/portone.js",
     "README.md",
