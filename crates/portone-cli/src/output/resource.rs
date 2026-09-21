@@ -1,6 +1,7 @@
 use std::io::Write;
 
 use clap::Args;
+use portone_schema_macros::schema_fields;
 use serde_json::{Map, Value};
 use unicode_width::UnicodeWidthStr;
 
@@ -41,73 +42,9 @@ impl ResourceKind {
     }
 }
 
-const PAYMENT_FIELDS: &[&str] = &[
-    "amount",
-    "billingKey",
-    "cancellations",
-    "cancelledAt",
-    "cashReceipt",
-    "cashReceiptIssuanceStatus",
-    "channel",
-    "channelGroup",
-    "country",
-    "currency",
-    "customData",
-    "customer",
-    "disputes",
-    "escrow",
-    "failedAt",
-    "failure",
-    "id",
-    "isCulturalExpense",
-    "merchantId",
-    "method",
-    "orderName",
-    "origin",
-    "paidAt",
-    "pgResponse",
-    "pgTxId",
-    "productCount",
-    "products",
-    "promotionId",
-    "receiptUrl",
-    "requestedAt",
-    "scheduleId",
-    "status",
-    "statusChangedAt",
-    "storeId",
-    "transactionId",
-    "updatedAt",
-    "version",
-    "webhooks",
-];
-const CANCELLATION_FIELDS: &[&str] = &[
-    "cancelledAt",
-    "easyPayDiscountAmount",
-    "id",
-    "pgCancellationId",
-    "reason",
-    "receiptUrl",
-    "requestedAt",
-    "status",
-    "taxFreeAmount",
-    "totalAmount",
-    "trigger",
-    "vatAmount",
-];
-const WEBHOOK_FIELDS: &[&str] = &[
-    "currentExecutionCount",
-    "id",
-    "isAsync",
-    "maxExecutionCount",
-    "paymentStatus",
-    "request",
-    "response",
-    "status",
-    "trigger",
-    "triggeredAt",
-    "url",
-];
+const PAYMENT_FIELDS: &[&str] = schema_fields!(Payment);
+const CANCELLATION_FIELDS: &[&str] = schema_fields!(PaymentCancellation);
+const WEBHOOK_FIELDS: &[&str] = schema_fields!(PaymentWebhook);
 
 impl ResourceOutput {
     pub fn validate(&self, kind: ResourceKind) -> Result<(), CliError> {

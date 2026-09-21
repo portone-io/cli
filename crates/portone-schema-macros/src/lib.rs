@@ -1,6 +1,7 @@
-//! Import named string enums from the committed PortOne OpenAPI schema.
+//! Import named string enums and object fields from the committed PortOne OpenAPI schema.
 
 mod expand;
+mod fields;
 
 use std::sync::LazyLock;
 
@@ -30,6 +31,30 @@ pub fn schema_enum(input: TokenStream) -> TokenStream {
         Ok(schema) => expand::generate(schema, &input),
         Err(error) => Err(syn::Error::new(
             input.name.span(),
+            format!("invalid embedded OpenAPI schema: {error}"),
+        )),
+    };
+    result.unwrap_or_else(syn::Error::into_compile_error).into()
+}
+
+/// Generate a sorted, deduplicated slice of top-level JSON field names.
+///
+/// ```text
+/// use portone_schema_macros::schema_fields;
+///
+/// const PAYMENT_FIELDS: &[&str] = schema_fields!(Payment);
+/// ```
+///
+/// Local schema references and `oneOf` variants are followed to collect the union
+/// of object properties. Nested properties are not traversed. Missing schemas,
+/// invalid or cyclic references, and unsupported schema shapes are compile errors.
+#[proc_macro]
+pub fn schema_fields(input: TokenStream) -> TokenStream {
+    let name = syn::parse_macro_input!(input as syn::Ident);
+    let result = match &*SCHEMA {
+        Ok(schema) => fields::generate(schema, &name),
+        Err(error) => Err(syn::Error::new(
+            name.span(),
             format!("invalid embedded OpenAPI schema: {error}"),
         )),
     };
