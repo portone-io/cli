@@ -103,9 +103,7 @@ jobs:
           persist-credentials: false
 
       - name: Install cargo-vet
-        uses: taiki-e/install-action@1329c298aa20c3257846c9b2e0e55967df3e3c37
-        with:
-          tool: cargo-vet
+        run: cargo install cargo-vet --version 0.10.2 --locked
 
       - name: Vet dependencies
         run: cargo vet --locked
